@@ -1,7 +1,9 @@
 package com.sparta.springtrello.domain.workspace.service;
 
 import com.sparta.springtrello.domain.board.entity.BoardEntity;
+import com.sparta.springtrello.domain.common.dto.AuthUser;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.user.enums.UserRole;
 import com.sparta.springtrello.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceNameResponse;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceResponse;
@@ -30,10 +32,10 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
 
     @Transactional
-    public WorkspaceResponse createWorkspace(WorkspaceRequest workspaceRequest) {
+    public WorkspaceResponse createWorkspace(AuthUser authUser, WorkspaceRequest workspaceRequest) {
 
         // TODO [3] ADMIN 권한 확인
-        if(!authUser.getAuthority().equals(Authority.ADMIN.name())){
+        if(!authUser.getUserRole().equals(UserRole.ADMIN.name())){
             throw new ApiException(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다.");
         }
 
@@ -47,7 +49,8 @@ public class WorkspaceService {
                 savedWorkspace.getId(),
                 savedWorkspace.getName(),
                 savedWorkspace.getDescription(),
-                // TODO [4] bearer 토큰에서 가져온 user 의 memberEntity
+                // TODO [4] bearer 토큰에서 가져온 user 의 UserEntity
+
                 savedWorkspace.getCreatedAt(),
                 savedWorkspace.getUpdatedAt()
         );
@@ -62,10 +65,10 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public WorkspaceResponse updateWorkspace(Long workspaceId,WorkspaceRequest workspaceRequest) {
+    public WorkspaceResponse updateWorkspace(AuthUser authUser, Long workspaceId, WorkspaceRequest workspaceRequest) {
 
         // TODO [9] ADMIN 권한 확인
-        if(!authUser.getAuthority().equals(Authority.ADMIN.name())){
+        if(!authUser.getUserRole().equals(UserRole.ADMIN.name())){
             throw new ApiException(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다.");
         }
 
@@ -81,6 +84,7 @@ public class WorkspaceService {
                 workspace.getName(),
                 workspace.getDescription(),
                 // TODO [10] bearer 토큰에서 가져온 user 의 memberEntity
+
                 workspace.getCreatedAt(),
                 workspace.getUpdatedAt()
         );

@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.workspace.controller;
 
+import com.sparta.springtrello.domain.common.dto.AuthUser;
 import com.sparta.springtrello.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceNameResponse;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceResponse;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +22,11 @@ public class WorkspaceController {
 
     @PostMapping("/workspaces")
     public ResponseEntity<WorkspaceResponse> createWorkspace(
-            // TODO [1] @Authentication AuthUser authUser,
+            @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody WorkspaceRequest workspaceRequest
     ){
         WorkspaceResponse workspaceResponse = workspaceService.createWorkspace(
-                // TODO [2] authUser,
+                authUser,
                 workspaceRequest
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(workspaceResponse);
@@ -42,22 +44,21 @@ public class WorkspaceController {
 
     @PatchMapping("/workspaces/{workspaceId}")
     public ResponseEntity<WorkspaceResponse> updateWorkspace(
-            // TODO [7] @Authentication AuthUser authUser,
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long workspaceId,
             @Valid @RequestBody WorkspaceRequest workspaceRequest
     ){
         WorkspaceResponse workspaceResponse = workspaceService.updateWorkspace(
-                // TODO [8] authUser,
+                authUser,
                 workspaceId,
                 workspaceRequest
         );
         return ResponseEntity.ok(workspaceResponse);
     }
 
-    @DeleteMapping("/workspaces/{workspaceId}")
-    public ResponseEntity<Void> deleteWorkspace(
-            // TODO [11] @Authentication AuthUser authUser,
-            @PathVariable Long workspaceId) {
-
-    }
+//    @DeleteMapping("/workspaces/{workspaceId}")
+//    public ResponseEntity<Void> deleteWorkspace(
+//            @AuthenticationPrincipal AuthUser authUser,
+//            @PathVariable Long workspaceId) {
+//    }
 }
