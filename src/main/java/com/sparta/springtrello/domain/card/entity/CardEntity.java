@@ -28,7 +28,7 @@ public class CardEntity extends Timestamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id",nullable = false)
-    private ListEntity list;
+    private ListㅎEntity list;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
