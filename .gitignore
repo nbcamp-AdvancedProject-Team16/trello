@@ -40,4 +40,4 @@ out/
 .entity
 
 ### dev properties ignore ###
-.properties
+/src/main/resources/application-dev.properties
