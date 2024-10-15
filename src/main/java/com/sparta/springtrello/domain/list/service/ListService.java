@@ -21,9 +21,9 @@ public class ListService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public ListResponse createList(Long boardId, Long memberId, ListRequest listRequest) {
+    public ListResponse createList(Long boardId, CustomUserDetails authUser, ListRequest listRequest) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // 읽기 전용 멤버는 리스트를 생성할 수 없음
@@ -56,9 +56,9 @@ public class ListService {
     }
 
     @Transactional
-    public ListResponse updateList(Long listId, Long memberId, ListRequest listRequest) {
+    public ListResponse updateList(Long listId, CustomUserDetails authUser, ListRequest listRequest) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // 읽기 전용 멤버는 리스트를 수정할 수 없음
@@ -92,9 +92,9 @@ public class ListService {
     }
 
     @Transactional
-    public void deleteList(Long listId, Long memberId) {
+    public void deleteList(Long listId, CustomUserDetails authUser) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // 읽기 전용 멤버는 리스트를 삭제할 수 없음

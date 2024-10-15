@@ -7,6 +7,7 @@ import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.list.service.ListService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +20,10 @@ public class ListController {
     @PostMapping
     public ResponseEntity<ApiResponse<ListResponse>> createList(
             @PathVariable Long boardId,
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody ListRequest listRequest) {
         try {
-            ListResponse response = listService.createList(boardId, memberId, listRequest);
+            ListResponse response = listService.createList(boardId, authUser, listRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -34,10 +35,10 @@ public class ListController {
     public ResponseEntity<ApiResponse<ListResponse>> updateList(
             @PathVariable Long boardId,
             @PathVariable Long listId,
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody ListRequest listRequest) {
         try {
-            ListResponse response = listService.updateList(listId, memberId, listRequest);
+            ListResponse response = listService.updateList(listId, authUser, listRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -49,9 +50,9 @@ public class ListController {
     public ResponseEntity<ApiResponse<Void>> deleteList(
             @PathVariable Long boardId,
             @PathVariable Long listId,
-            @RequestParam Long memberId) {
+            @AuthenticationPrincipal CustomUserDetails authUser) {
         try {
-            listService.deleteList(listId, memberId);
+            listService.deleteList(listId, authUser);
             return ResponseEntity.ok(new ApiResponse<>(200, "리스트가 성공적으로 삭제되었습니다.", null));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
