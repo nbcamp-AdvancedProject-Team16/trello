@@ -5,7 +5,6 @@ import com.sparta.springtrello.domain.board.dto.response.BoardResponse;
 import com.sparta.springtrello.domain.board.entity.BoardEntity;
 import com.sparta.springtrello.domain.board.repository.BoardRepository;
 import com.sparta.springtrello.domain.common.exception.CustomException;
-import com.sparta.springtrello.domain.common.response.ApiResponse;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,9 +24,9 @@ public class BoardService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public BoardResponse createBoard(Long workspaceId, Long memberId, BoardRequest boardRequest) {
+    public BoardResponse createBoard(Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // WorkspaceEntity 찾기
@@ -74,9 +74,9 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse updateBoard(Long boardId, Long memberId, BoardRequest boardRequest) {
+    public BoardResponse updateBoard(Long boardId, CustomUserDetails authUser, BoardRequest boardRequest) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // 읽기 전용 멤버는 보드를 수정할 수 없음
@@ -115,9 +115,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(Long boardId, Long memberId) {
+    public void deleteBoard(Long boardId, CustomUserDetails authUser) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // 읽기 전용 멤버는 보드를 삭제할 수 없음
@@ -134,9 +134,9 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse getBoard(Long boardId, Long memberId) {
+    public BoardResponse getBoard(Long boardId, CustomUserDetails authUser) {
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
                 .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
 
         // 보드 존재 여부 확인

@@ -7,6 +7,7 @@ import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +20,10 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<ApiResponse<BoardResponse>> createBoard(
             @PathVariable Long workspaceId,
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody BoardRequest boardRequest) {
         try {
-            BoardResponse response = boardService.createBoard(workspaceId, memberId, boardRequest);
+            BoardResponse response = boardService.createBoard(workspaceId, authUser, boardRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -34,10 +35,10 @@ public class BoardController {
     public ResponseEntity<ApiResponse<BoardResponse>> updateBoard(
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody BoardRequest boardRequest) {
         try {
-            BoardResponse response = boardService.updateBoard(boardId, memberId, boardRequest);
+            BoardResponse response = boardService.updateBoard(boardId, authUser, boardRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -49,9 +50,9 @@ public class BoardController {
     public ResponseEntity<ApiResponse<Void>> deleteBoard(
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
-            @RequestParam Long memberId) {
+            @AuthenticationPrincipal CustomUserDetails authUser) {
         try {
-            boardService.deleteBoard(boardId, memberId);
+            boardService.deleteBoard(boardId, authUser);
             return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -63,9 +64,9 @@ public class BoardController {
     public ResponseEntity<ApiResponse<BoardResponse>> getBoard(
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
-            @RequestParam Long memberId) {
+            @AuthenticationPrincipal CustomUserDetails authUser) {
         try {
-            BoardResponse response = boardService.getBoard(boardId, memberId);
+            BoardResponse response = boardService.getBoard(boardId, authUser);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
