@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,6 +36,6 @@ public class CardEntity extends Timestamped {
     private MemberEntity createdBy;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    private CommentEntity comments;
+    private List<CommentEntity> comments;
 
 }
