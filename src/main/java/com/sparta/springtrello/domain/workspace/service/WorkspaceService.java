@@ -50,7 +50,6 @@ public class WorkspaceService {
                 savedWorkspace.getName(),
                 savedWorkspace.getDescription(),
                 // TODO [4] bearer 토큰에서 가져온 user 의 UserEntity
-
                 savedWorkspace.getCreatedAt(),
                 savedWorkspace.getUpdatedAt()
         );
@@ -84,9 +83,19 @@ public class WorkspaceService {
                 workspace.getName(),
                 workspace.getDescription(),
                 // TODO [10] bearer 토큰에서 가져온 user 의 memberEntity
-
                 workspace.getCreatedAt(),
                 workspace.getUpdatedAt()
         );
+    }
+
+    @Transactional
+    public WorkspaceResponse deleteWorkspace(AuthUser authUser, Long workspaceId) {
+
+        // TODO [] ADMIN 권한 확인
+        if(!authUser.getUserRole().equals(UserRole.ADMIN.name())){
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다.");
+        }
+
+        workspaceRepository.deleteById(workspaceId);
     }
 }
