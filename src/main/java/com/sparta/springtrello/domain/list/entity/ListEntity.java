@@ -6,11 +6,7 @@ import com.sparta.springtrello.domain.common.entity.Timestamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.smartcardio.Card;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
