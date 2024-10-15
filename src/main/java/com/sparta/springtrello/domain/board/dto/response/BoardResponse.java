@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.board.dto.response;
 
+import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

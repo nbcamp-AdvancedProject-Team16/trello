@@ -33,4 +33,10 @@ public class ListEntity extends Timestamped {
     // 관계 설정: List는 여러 Card를 가질 수 있음
     @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CardEntity> cards = new ArrayList<>();
+
+    public ListEntity(String title, Integer listOrder, BoardEntity board) {
+        this.title = title;
+        this.listOrder = listOrder;
+        this.board = board;
+    }
 }
