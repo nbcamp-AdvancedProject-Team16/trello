@@ -34,4 +34,3 @@ public class ListEntity extends Timestamped {
     @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CardEntity> cards = new ArrayList<>();
 }
-
