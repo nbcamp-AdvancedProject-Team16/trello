@@ -7,6 +7,7 @@ import com.sparta.springtrello.domain.board.repository.BoardRepository;
 import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -85,7 +86,7 @@ public class BoardService {
             throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 수정할 수 없습니다.");
         }
 
-        // BoardEntity 찾기
+        // BoardEntity 찾기햐
         BoardEntity existingBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
 
