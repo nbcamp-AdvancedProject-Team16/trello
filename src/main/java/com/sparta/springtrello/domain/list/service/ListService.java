@@ -70,6 +70,11 @@ public class ListService {
         ListEntity existingList = listRepository.findById(listId)
                 .orElseThrow(() -> new CustomException(404, "해당 리스트를 찾을 수 없습니다."));
 
+        // 새로운 순서로 이동하는 경우
+        if (!existingList.getListOrder().equals(listRequest.getListOrder())) {
+            reorderLists(existingList.getBoard(), existingList.getListOrder(), listRequest.getListOrder());
+        }
+
         // 리스트 정보 업데이트
         existingList.update(listRequest.getTitle(), listRequest.getListOrder());
 
@@ -103,5 +108,21 @@ public class ListService {
 
         // 리스트 삭제 (리스트 내의 모든 카드와 관련 데이터도 삭제됨)
         listRepository.delete(listEntity);
+    }
+
+    // 리스트 순서 재정렬 로직
+    private void reorderLists(BoardEntity board, int oldOrder, int newOrder) {
+        // 이동할 순서가 더 큰 경우 (리스트가 하위로 이동하는 경우)
+        if (newOrder > oldOrder) {
+            // oldOrder 보다 크고 newOrder 이하인 리스트들의 순서를 하나씩 감소시킴
+            listRepository.findByBoardAndListOrderBetween(board, oldOrder + 1, newOrder)
+                    .forEach(list -> list.setListOrder(list.getListOrder() - 1));
+        }
+        // 이동할 순서가 더 작은 경우 (리스트가 상위로 이동하는 경우)
+        else if (newOrder < oldOrder) {
+            // newOrder 보다 크거나 같고 oldOrder 보다 작은 리스트들의 순서를 하나씩 증가시킴
+            listRepository.findByBoardAndListOrderBetween(board, newOrder, oldOrder - 1)
+                    .forEach(list -> list.setListOrder(list.getListOrder() + 1));
+        }
     }
 }

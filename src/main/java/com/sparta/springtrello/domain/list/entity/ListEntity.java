@@ -39,4 +39,13 @@ public class ListEntity extends Timestamped {
         this.listOrder = listOrder;
         this.board = board;
     }
+
+    public void update(String title, int listOrder) {
+        this.title = title;
+        this.listOrder = listOrder;
+    }
+
+    public void setListOrder(int listOrder) {
+        this.listOrder = listOrder;
+    }
 }
