@@ -20,7 +20,6 @@ public class AssigneeService {
     private final UserRepository userRepository;
 
     public AssigneeResponse createAssignee(Long cardId, Long userId) {
-
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new RuntimeException("카드를 찾을 수 없습니다."));
 
@@ -34,10 +33,20 @@ public class AssigneeService {
         }
 
         AssigneeEntity assignee = new AssigneeEntity(card, user);
+        String message = String.format("%d번 담당자가 생성되었습니다.", userId);
 
-     AssigneeEntity assigneeEntity = assigneeRepository.save(assignee);
+        AssigneeEntity assigneeEntity = assigneeRepository.save(assignee);
 
-      return new AssigneeResponse(assigneeEntity);
+        return new AssigneeResponse(assigneeEntity, message);
+    }
+
+    public AssigneeResponse getAssignee(Long cardId, Long userId) {
+        AssigneeEntity assignee = assigneeRepository.findByCardIdAndUserId(cardId, userId)
+                .orElseThrow(() -> new RuntimeException("담당자를 찾을 수 없습니다."));
+
+        String message = String.format("%d번 담당자가 조회되었습니다.", userId);
+
+        return new AssigneeResponse(assignee, message);
     }
 
     public void removeAssignee(Long cardId, Long assigneeId) {
