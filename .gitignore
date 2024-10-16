@@ -41,3 +41,15 @@ out/
 
 ### dev properties ignore ###
 /src/main/resources/application-dev.properties
+/src/main/generated/com/sparta/springtrello/domain/attachment/entity/QAttachmentEntity.java
+/src/main/generated/com/sparta/springtrello/domain/board/entity/QBoardEntity.java
+/src/main/generated/com/sparta/springtrello/domain/card/entity/QCardEntity.java
+/src/main/generated/com/sparta/springtrello/domain/comment/entity/QCommentEntity.java
+/src/main/generated/com/sparta/springtrello/domain/common/entity/QTimestamped.java
+/src/main/generated/com/sparta/springtrello/domain/list/entity/QListEntity.java
+/src/main/generated/com/sparta/springtrello/domain/member/entity/QMemberEntity.java
+/src/main/generated/com/sparta/springtrello/domain/notification/entity/QNotificationEntity.java
+/src/main/generated/com/sparta/springtrello/domain/notification/entity/QNotificationSettingEntity.java
+/src/main/generated/com/sparta/springtrello/domain/search/entity/QSearchEntity.java
+/src/main/generated/com/sparta/springtrello/domain/user/entity/QUserEntity.java
+/src/main/generated/com/sparta/springtrello/domain/workspace/entity/QWorkspaceEntity.java
