@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler extends RuntimeException {
+public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handlerIllegalArgumentException(CustomException e) {
-        ApiResponse<Void> response = new ApiResponse<>(e.getStatus(), e.getMessage(), null);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
+  @ExceptionHandler(CustomException.class)
+  public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
+    ApiResponse<Void> response = new ApiResponse<>(e.getStatus(), e.getMessage(), null);
+    HttpStatus status = HttpStatus.valueOf(e.getStatus());
+    return new ResponseEntity<>(response, status);
+  }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
