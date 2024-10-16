@@ -17,16 +17,14 @@ public class NotificationEntity extends Timestamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
-
-    @Column(nullable = false, length = 25)
+    @Column(nullable = false, length = 500)
     private String message;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceEntity workspace;
 
