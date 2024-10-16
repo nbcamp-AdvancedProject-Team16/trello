@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -27,6 +28,8 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final ListPath<com.sparta.springtrello.domain.member.entity.MemberEntity, com.sparta.springtrello.domain.member.entity.QMemberEntity> members = this.<com.sparta.springtrello.domain.member.entity.MemberEntity, com.sparta.springtrello.domain.member.entity.QMemberEntity>createList("members", com.sparta.springtrello.domain.member.entity.MemberEntity.class, com.sparta.springtrello.domain.member.entity.QMemberEntity.class, PathInits.DIRECT2);
 
     public final StringPath password = createString("password");
 

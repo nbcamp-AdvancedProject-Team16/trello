@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
-    private final MemberRepository memberRepository;
 
     @Transactional
     public WorkspaceResponse createWorkspace(CustomUserDetails authUser, WorkspaceRequest workspaceRequest) {
@@ -55,14 +54,11 @@ public class WorkspaceService {
     }
 
     public List<WorkspaceNameResponse> getWorkspaces(CustomUserDetails authUser) {
-        UserEntity.fromAuthUser(authUser);
-
-        // 1. 유저가 가입된 멤버 엔티티 조회
-        List<MemberEntity> memberList = memberRepository.findAllByUserId(authUser.getId());
-
-        // 2. 멤버 엔티티에서 워크스페이스 목록 추출 및 변환
-        return memberList.stream()
-                .map(member -> new WorkspaceNameResponse(member.getWorkspace().getName()))
+        // WorkspaceRepository의 findByMembers_UserId 메서드를 사용해 유저의 워크스페이스 목록 조회
+        List<WorkspaceEntity> workspaces = workspaceRepository.findByMembers_UserId(authUser.getId());
+        // WorkspaceEntity 목록을 WorkspaceNameResponse로 변환하여 반환
+        return workspaces.stream()
+                .map(workspace -> new WorkspaceNameResponse(workspace.getName()))
                 .collect(Collectors.toList());
     }
 

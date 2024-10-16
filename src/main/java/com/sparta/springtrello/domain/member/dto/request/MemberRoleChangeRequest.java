@@ -12,5 +12,6 @@ public class MemberRoleChangeRequest {
     private Long userId; // 추가할 유저 ID
     @NotNull
     private MemberRole memberRole; // 할당할 역할
+    // WORKSPACE_ADMIN, BOARD_MEMBER, READ_ONLY
 }
 
