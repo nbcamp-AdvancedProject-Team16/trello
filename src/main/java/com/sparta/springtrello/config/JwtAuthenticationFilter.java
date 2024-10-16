@@ -22,20 +22,23 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final JwtUtil jwtUtil;
     private final CustomUserDetailService customUserDetailService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        // Authorization 헤더 확인
         String authorizationHeader = request.getHeader("Authorization");
 
-        // Authorization 헤더가 없거나 Bearer 토큰이 아닌 경우 필터 통과
+        // Authorization 헤더가 없거나, Bearer 토큰이 아닌 경우 필터 통과
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // JWT 토큰 추출 및 검증
         String jwt = jwtUtil.substringToken(authorizationHeader);
         Claims claims = jwtUtil.extractClaims(jwt);
 
@@ -48,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Long userId = Long.parseLong(claims.getSubject());
         UserRole userRole = UserRole.of(claims.get("userRole", String.class));
 
-        // HttpServletRequest에 사용자 정보 저장 (기존 방식 유지)
+        // 사용자 정보 HttpServletRequest에 저장
         request.setAttribute("userId", userId);
         request.setAttribute("email", email);
         request.setAttribute("userRole", userRole);
@@ -63,6 +66,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
+
+        // 필터 체인 통과
         filterChain.doFilter(request, response);
     }
 }
