@@ -34,7 +34,7 @@ public class MemberEntity extends Timestamped {
         this.workspace = workspace;
         this.memberRole = memberRole;
     }
-    
+
     public void changeRole(MemberRole memberRole){
         this.memberRole = memberRole;
     }
