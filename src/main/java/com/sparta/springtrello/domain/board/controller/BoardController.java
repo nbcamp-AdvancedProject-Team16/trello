@@ -7,11 +7,9 @@ import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.response.ApiResponse;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,17 +18,17 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping
     public ResponseEntity<ApiResponse<BoardResponse>> createBoard(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long workspaceId,
-            @RequestPart("boardRequest") BoardRequest boardRequest,
-            @RequestPart(value = "backgroundImage", required = false) MultipartFile backgroundImage) {
+            @RequestBody BoardRequest boardRequest) {
         if (authUser == null) {
             return ResponseEntity.status(403).body(new ApiResponse<>(403, "인증되지 않은 사용자입니다.", null));
         }
         try {
-            BoardResponse response = boardService.createBoard(authUser, workspaceId, boardRequest, backgroundImage);
+            // backgroundImage 는 boardRequest 내의 필드로 사용
+            BoardResponse response = boardService.createBoard(authUser, workspaceId, boardRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -38,15 +36,14 @@ public class BoardController {
         }
     }
 
-    @PatchMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping("/{boardId}")
     public ResponseEntity<ApiResponse<BoardResponse>> updateBoard(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
-            @RequestPart("boardRequest") BoardRequest boardRequest,
-            @RequestPart(value = "backgroundImage", required = false) MultipartFile backgroundImage) {
+            @RequestBody BoardRequest boardRequest) {
         try {
-            BoardResponse response = boardService.updateBoard(boardId, workspaceId, authUser, boardRequest, backgroundImage);
+            BoardResponse response = boardService.updateBoard(boardId, workspaceId, authUser, boardRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -82,3 +79,4 @@ public class BoardController {
         }
     }
 }
+
