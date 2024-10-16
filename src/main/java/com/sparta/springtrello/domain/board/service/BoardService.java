@@ -4,7 +4,7 @@ import com.sparta.springtrello.domain.board.dto.request.BoardRequest;
 import com.sparta.springtrello.domain.board.dto.response.BoardResponse;
 import com.sparta.springtrello.domain.board.entity.BoardEntity;
 import com.sparta.springtrello.domain.board.repository.BoardRepository;
-import com.sparta.springtrello.domain.card.entity.dto.response.CardResponse;
+import com.sparta.springtrello.domain.card.dto.CardResponse;
 import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
@@ -12,8 +12,6 @@ import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
-import com.sparta.springtrello.domain.user.repository.UserRepository;
-import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -173,8 +171,11 @@ public class BoardService {
                 .map(list -> new ListResponse(
                         list.getId(),
                         list.getTitle(),
+                        list.getListOrder(),
+                        list.getCreatedAt(),
+                        list.getUpdatedAt(),
                         list.getCards().stream()
-                                .map(card -> new CardResponse(card.getId(), card.getTitle(), card.getDescription(), card.getDueDate()))
+                                .map(card -> new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate()))
                                 .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
@@ -193,7 +194,7 @@ public class BoardService {
 
     private void validatePermission(MemberEntity member) {
         if (member.getMemberRole() == MemberRole.READ_ONLY) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 생성할 수 없습니다.");
+            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 생성, 수정, 삭제할 수 없습니다.");
         }
     }
 }

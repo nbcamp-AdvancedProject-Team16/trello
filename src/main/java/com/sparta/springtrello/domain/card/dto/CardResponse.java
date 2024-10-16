@@ -1,31 +1,18 @@
 package com.sparta.springtrello.domain.card.dto;
 
-import com.sparta.springtrello.domain.attachment.entity.AttachmentEntity;
-import com.sparta.springtrello.domain.card.entity.CardEntity;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
-public class CardResponse<T> {
+public class CardResponse {
     private String title;
     private String description;
     private LocalDate dueDate;
-    private String message;
 
-    private List<AttachmentEntity> attachmentEntityList;
-    private T data; //이거 어디에 넣어
-
-    public CardResponse(CardEntity card){
-        this.title = card.getTitle();
-        this.description = card.getDescription();
-        this.dueDate = card.getDueDate();
+    public CardResponse(String title, String description, LocalDate dueDate) {
+        this.title = getTitle();
+        this.description = getDescription();
+        this.dueDate = getDueDate();
     }
-
-    public void message(String message) {
-        this.message = message;
-    }
-
-
 }
