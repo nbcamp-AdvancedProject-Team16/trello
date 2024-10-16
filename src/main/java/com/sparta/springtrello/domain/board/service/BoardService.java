@@ -4,11 +4,15 @@ import com.sparta.springtrello.domain.board.dto.request.BoardRequest;
 import com.sparta.springtrello.domain.board.dto.response.BoardResponse;
 import com.sparta.springtrello.domain.board.entity.BoardEntity;
 import com.sparta.springtrello.domain.board.repository.BoardRepository;
+import com.sparta.springtrello.domain.card.entity.dto.response.CardResponse;
 import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
+import com.sparta.springtrello.domain.user.entity.UserEntity;
+import com.sparta.springtrello.domain.user.repository.UserRepository;
 import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +31,20 @@ public class BoardService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public BoardResponse createBoard(Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest) {
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+    public BoardResponse createBoard(CustomUserDetails authUser, Long memberId, Long workspaceId, BoardRequest boardRequest) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
+
+        // 멤버 여부
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 보드 생성이 불가능
+        validatePermission(member);
 
         // WorkspaceEntity 찾기
-        WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
+        workspaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
-
-        // 읽기 전용 멤버는 보드를 생성할 수 없음
-        if (member.isReadOnly()) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 생성할 수 없습니다.");
-        }
 
         // 배경색과 배경 이미지 URL 중 하나라도 입력이 없으면 기본값으로 설정
         String backgroundColor = boardRequest.getBackgroundColor();
@@ -77,15 +82,20 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse updateBoard(Long boardId, CustomUserDetails authUser, BoardRequest boardRequest) {
+    public BoardResponse updateBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
+
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 보드를 수정할 수 없음
-        if (member.isReadOnly()) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 수정할 수 없습니다.");
-        }
+        validatePermission(member);
+
+        // WorkspaceEntity 찾기
+        workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // BoardEntity 찾기햐
         BoardEntity existingBoard = boardRepository.findById(boardId)
@@ -118,15 +128,20 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(Long boardId, CustomUserDetails authUser) {
+    public void deleteBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
+
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 보드를 삭제할 수 없음
-        if (member.isReadOnly()) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 삭제할 수 없습니다.");
-        }
+        validatePermission(member);
+
+        // WorkspaceEntity 찾기
+        workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // BoardEntity 찾기
         BoardEntity board = boardRepository.findById(boardId)
@@ -137,10 +152,17 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse getBoard(Long boardId, CustomUserDetails authUser) {
+    public BoardResponse getBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
+
         // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+
+        // WorkspaceEntity 찾기
+        workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // 보드 존재 여부 확인
         BoardEntity board = boardRepository.findById(boardId)
@@ -167,5 +189,11 @@ public class BoardService {
                 board.getUpdatedAt(),
                 lists // 리스트와 카드 데이터 포함
         );
+    }
+
+    private void validatePermission(MemberEntity member) {
+        if (member.getMemberRole() == MemberRole.READ_ONLY) {
+            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 생성할 수 없습니다.");
+        }
     }
 }
