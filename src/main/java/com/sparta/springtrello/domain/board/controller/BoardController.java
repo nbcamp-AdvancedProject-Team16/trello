@@ -7,9 +7,11 @@ import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.response.ApiResponse;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,14 +20,15 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BoardResponse>> createBoard(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long memberId,
             @PathVariable Long workspaceId,
-            @RequestBody BoardRequest boardRequest) {
+            @RequestPart("boardRequest") BoardRequest boardRequest,
+            @RequestPart(value = "backgroundImage", required = false) MultipartFile backgroundImage) {
         try {
-            BoardResponse response = boardService.createBoard(authUser, memberId, workspaceId, boardRequest);
+            BoardResponse response = boardService.createBoard(authUser, memberId, workspaceId, boardRequest, backgroundImage);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -33,15 +36,16 @@ public class BoardController {
         }
     }
 
-    @PatchMapping("/{boardId}")
+    @PatchMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BoardResponse>> updateBoard(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long memberId,
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
-            @RequestBody BoardRequest boardRequest) {
+            @RequestPart("boardRequest") BoardRequest boardRequest,
+            @RequestPart(value = "backgroundImage", required = false) MultipartFile backgroundImage) {
         try {
-            BoardResponse response = boardService.updateBoard(memberId, boardId, workspaceId, authUser, boardRequest);
+            BoardResponse response = boardService.updateBoard(memberId, boardId, workspaceId, authUser, boardRequest, backgroundImage);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())

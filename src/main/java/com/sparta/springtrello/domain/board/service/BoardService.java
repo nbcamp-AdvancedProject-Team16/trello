@@ -16,6 +16,7 @@ import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,9 +28,10 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final WorkspaceRepository workspaceRepository;
     private final MemberRepository memberRepository;
+    private final BoardImageService boardImageService;
 
     @Transactional
-    public BoardResponse createBoard(CustomUserDetails authUser, Long memberId, Long workspaceId, BoardRequest boardRequest) {
+    public BoardResponse createBoard(CustomUserDetails authUser, Long memberId, Long workspaceId, BoardRequest boardRequest, MultipartFile backgroundImage) {
         // User 인증
         UserEntity.fromAuthUser(authUser);
 
@@ -44,14 +46,14 @@ public class BoardService {
         workspaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
-        // 배경색과 배경 이미지 URL 중 하나라도 입력이 없으면 기본값으로 설정
-        String backgroundColor = boardRequest.getBackgroundColor();
-        String backgroundImageUrl = boardRequest.getBackgroundImageUrl();
-
-        if (backgroundColor == null && backgroundImageUrl == null) {
-            // 둘 다 없으면 기본 배경색을 하얀색(#FFFFFF)으로 설정
-            backgroundColor = "#FFFFFF";
+        // 배경 이미지 업로드 (배경 이미지가 있으면 업로드 후 URL 설정)
+        String backgroundImageUrl = null;
+        if (backgroundImage != null && !backgroundImage.isEmpty()) {
+            backgroundImageUrl = boardImageService.upload(backgroundImage);
         }
+
+        // 배경색과 배경 이미지 URL 중 하나라도 입력이 없으면 기본값으로 설정
+        String backgroundColor = boardRequest.getBackgroundColor() != null ? boardRequest.getBackgroundColor() : "#FFFFFF";
 
         // BoardEntity 생성
         BoardEntity board = new BoardEntity(
@@ -80,7 +82,7 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse updateBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest) {
+    public BoardResponse updateBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest, MultipartFile backgroundImage) {
         // User 인증
         UserEntity.fromAuthUser(authUser);
 
@@ -99,10 +101,16 @@ public class BoardService {
         BoardEntity existingBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
 
+        // 배경 이미지 업로드 (배경 이미지가 있으면 업로드 후 URL 설정)
+        String backgroundImageUrl = boardRequest.getBackgroundImageUrl(); // 기존 값
+        if (backgroundImage != null && !backgroundImage.isEmpty()) {
+            backgroundImageUrl = boardImageService.upload(backgroundImage); // 새로운 이미지 URL
+        }
+
         // 배경색과 이미지 업데이트 처리
         String updatedTitle = boardRequest.getTitle();
         String updatedBackgroundColor = boardRequest.getBackgroundColor() != null ? boardRequest.getBackgroundColor() : existingBoard.getBackgroundColor();
-        String updatedBackgroundImageUrl = boardRequest.getBackgroundImageUrl() != null ? boardRequest.getBackgroundImageUrl() : existingBoard.getBackgroundImageUrl();
+        String updatedBackgroundImageUrl = backgroundImageUrl != null ? backgroundImageUrl : existingBoard.getBackgroundImageUrl();
 
         existingBoard.update(updatedTitle, updatedBackgroundColor, updatedBackgroundImageUrl);
 
