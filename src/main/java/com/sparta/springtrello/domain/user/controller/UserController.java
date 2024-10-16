@@ -2,6 +2,7 @@ package com.sparta.springtrello.domain.user.controller;
 
 import com.sparta.springtrello.domain.common.dto.AuthUser;
 import com.sparta.springtrello.domain.user.dto.request.UserChangePasswordRequest;
+import com.sparta.springtrello.domain.user.dto.request.UserDeleteRequest;
 import com.sparta.springtrello.domain.user.dto.response.UserResponse;
 import com.sparta.springtrello.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,4 +28,10 @@ public class UserController {
         userService.changePassword(authUser.getId(), userChangePasswordRequest);
     }
 
+    @DeleteMapping("/{userId}")
+    public void deleteUser(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody UserDeleteRequest userDeleteRequest) {
+        userService.deleteUser(authUser.getId(), userDeleteRequest);
+    }
 }
