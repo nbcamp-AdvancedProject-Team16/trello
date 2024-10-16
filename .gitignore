@@ -36,11 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 
-### Qclass ignore ###
-.entity
-
 ### dev properties ignore ###
 /src/main/resources/application-dev.properties
+
+### Qclass ignore ###
 /src/main/generated/com/sparta/springtrello/domain/attachment/entity/QAttachmentEntity.java
 /src/main/generated/com/sparta/springtrello/domain/board/entity/QBoardEntity.java
 /src/main/generated/com/sparta/springtrello/domain/card/entity/QCardEntity.java
