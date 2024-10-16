@@ -21,6 +21,13 @@ public class AssigneeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<AssigneeResponse> getAssignee(@PathVariable Long cardId, @PathVariable Long userId) {
+        AssigneeResponse response = assigneeService.getAssignee(cardId,userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @DeleteMapping("/{assigneeId}")
     public ResponseEntity<Void> removeAssignee(@PathVariable Long cardId, @PathVariable Long userId,@PathVariable Long assigneeId) {
         assigneeService.removeAssignee(cardId, assigneeId);
