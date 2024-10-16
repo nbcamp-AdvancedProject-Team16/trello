@@ -5,13 +5,14 @@ import com.sparta.springtrello.domain.common.response.ApiResponse;
 import com.sparta.springtrello.domain.list.dto.request.ListRequest;
 import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.list.service.ListService;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/boards/{boardId}/lists")
+@RequestMapping("/member/{memberId}/workspace/{workspaceId}/boards/{boardId}/lists")
 @RequiredArgsConstructor
 public class ListController {
 
@@ -19,11 +20,13 @@ public class ListController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ListResponse>> createList(
+            @PathVariable Long memberId,
+            @PathVariable Long workspaceId,
             @PathVariable Long boardId,
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody ListRequest listRequest) {
         try {
-            ListResponse response = listService.createList(boardId, authUser, listRequest);
+            ListResponse response = listService.createList(memberId, workspaceId, boardId, authUser, listRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -33,12 +36,14 @@ public class ListController {
 
     @PatchMapping("/{listId}")
     public ResponseEntity<ApiResponse<ListResponse>> updateList(
+            @PathVariable Long memberId,
+            @PathVariable Long workspaceId,
             @PathVariable Long boardId,
             @PathVariable Long listId,
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody ListRequest listRequest) {
         try {
-            ListResponse response = listService.updateList(listId, authUser, listRequest);
+            ListResponse response = listService.updateList(memberId, workspaceId, boardId, listId, authUser, listRequest);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -48,11 +53,13 @@ public class ListController {
 
     @DeleteMapping("/{listId}")
     public ResponseEntity<ApiResponse<Void>> deleteList(
+            @PathVariable Long memberId,
+            @PathVariable Long workspaceId,
             @PathVariable Long boardId,
             @PathVariable Long listId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
         try {
-            listService.deleteList(listId, authUser);
+            listService.deleteList(memberId, workspaceId, boardId, listId, authUser);
             return ResponseEntity.ok(new ApiResponse<>(200, "리스트가 성공적으로 삭제되었습니다.", null));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())

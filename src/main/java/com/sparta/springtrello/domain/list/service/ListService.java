@@ -8,8 +8,11 @@ import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.list.entity.ListEntity;
 import com.sparta.springtrello.domain.list.repository.ListRepository;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
+import com.sparta.springtrello.domain.user.entity.UserEntity;
+import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,17 +24,23 @@ public class ListService {
     private final ListRepository listRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final WorkspaceRepository workspaceRepository;
 
     @Transactional
-    public ListResponse createList(Long boardId, CustomUserDetails authUser, ListRequest listRequest) {
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+    public ListResponse createList(Long memberId, Long workspaceId, Long boardId, CustomUserDetails authUser, ListRequest listRequest) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
 
-        // 읽기 전용 멤버는 리스트를 생성할 수 없음
-        if (member.isReadOnly()) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 리스트를 생성할 수 없습니다.");
-        }
+        // 멤버 여부
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 보드 생성이 불가능
+        validatePermission(member);
+
+        // WorkspaceEntity 찾기
+        workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // BoardEntity 찾기
         BoardEntity board = boardRepository.findById(boardId)
@@ -58,15 +67,25 @@ public class ListService {
     }
 
     @Transactional
-    public ListResponse updateList(Long listId, CustomUserDetails authUser, ListRequest listRequest) {
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+    public ListResponse updateList(Long memberId, Long boardId, Long workspaceId, Long listId, CustomUserDetails authUser, ListRequest listRequest) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
 
-        // 읽기 전용 멤버는 리스트를 수정할 수 없음
-        if (member.isReadOnly()) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 리스트를 수정할 수 없습니다.");
-        }
+        // 멤버 여부
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 보드 생성이 불가능
+        validatePermission(member);
+
+        // WorkspaceEntity 찾기
+        workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
+
+        // BoardEntity 찾기
+        boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+
 
         // ListEntity 찾기
         ListEntity existingList = listRepository.findById(listId)
@@ -94,15 +113,24 @@ public class ListService {
     }
 
     @Transactional
-    public void deleteList(Long listId, CustomUserDetails authUser) {
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(authUser.getId(), boardId)
-                .orElseThrow(() -> new CustomException(401, "로그인이 필요합니다."));
+    public void deleteList(Long memberId, Long workspaceId, Long boardId, Long listId, CustomUserDetails authUser) {
+        // User 인증
+        UserEntity.fromAuthUser(authUser);
 
-        // 읽기 전용 멤버는 리스트를 삭제할 수 없음
-        if (member.isReadOnly()) {
-            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 리스트를 삭제할 수 없습니다.");
-        }
+        // 멤버 여부
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 보드 생성이 불가능
+        validatePermission(member);
+
+        // WorkspaceEntity 찾기
+        workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
+
+        // BoardEntity 찾기
+        boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
 
         // ListEntity 찾기
         ListEntity listEntity = listRepository.findById(listId)
@@ -125,6 +153,12 @@ public class ListService {
             // newOrder 보다 크거나 같고 oldOrder 보다 작은 리스트들의 순서를 하나씩 증가시킴
             listRepository.findByBoardAndListOrderBetween(board, newOrder, oldOrder - 1)
                     .forEach(list -> list.setListOrder(list.getListOrder() + 1));
+        }
+    }
+
+    private void validatePermission(MemberEntity member) {
+        if (member.getMemberRole() == MemberRole.READ_ONLY) {
+            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 리스트를 생성, 수정, 삭제할 수 없습니다.");
         }
     }
 }
