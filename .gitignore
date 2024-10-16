@@ -41,3 +41,6 @@ out/
 
 ### dev properties ignore ###
 /src/main/resources/application-dev.properties
+
+### Qclass ignore ###
+/src/main/generated/
