@@ -1,0 +1,68 @@
+package com.sparta.springtrello.domain.card.service;
+
+import com.sparta.springtrello.domain.activity.service.ActivityLogService;
+import com.sparta.springtrello.domain.card.dto.CardRequest;
+import com.sparta.springtrello.domain.card.dto.CardResponse;
+import com.sparta.springtrello.domain.card.entity.CardEntity;
+import com.sparta.springtrello.domain.card.repository.CardRepository;
+import com.sparta.springtrello.domain.list.entity.ListEntity;
+import com.sparta.springtrello.domain.list.repository.ListRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+
+@Service
+@RequiredArgsConstructor
+public class CardService {
+
+    private final CardRepository cardRepository;
+    private final ListRepository listRepository;
+    private final ActivityLogService activityLogService;
+
+
+    public CardResponse createCard(Long listId,CardRequest cardRequest) {
+
+        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new RuntimeException("리스트 ID를 찾을 수 없습니다."));
+
+        CardEntity card = new CardEntity(cardRequest);
+
+        card.listConnect(list);
+
+        CardEntity savedCard = cardRepository.save(card);
+
+        activityLogService.saveLog("카드가 생성되었습니다. 카드 ID: " + savedCard.getId());
+
+        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
+    }
+
+    public CardResponse getCard(Long listId, Long cardId) {
+        CardEntity card = cardRepository.findByListIdAndId(listId,cardId).orElseThrow(() -> new RuntimeException("카드가 존재하지 않습니다."));
+
+
+        activityLogService.saveLog("카드가 조회되었습니다. 카드 ID: " + card.getId());
+
+        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
+    }
+
+    public CardResponse updateCard(Long listId, Long cardId, CardRequest cardRequest) {
+        CardEntity card = cardRepository.findByListIdAndId(listId,cardId)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+
+        card.updateCard(cardRequest);
+
+
+        activityLogService.saveLog("카드가 수정되었습니다. 카드 ID: " + card.getId());
+
+        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
+    }
+
+    public void deleteCard(Long listId, Long cardId) {
+        CardEntity card = cardRepository.findByListIdAndId(listId,cardId)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+
+        // 활동 내역 저장 (카드 삭제)
+        activityLogService.saveLog("카드가 삭제되었습니다. 카드 ID: " + card.getId());
+
+        cardRepository.delete(card);
+    }
+}
