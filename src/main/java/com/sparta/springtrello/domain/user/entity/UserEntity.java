@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,8 +29,8 @@ public class UserEntity extends Timestamped {
     @Column(nullable = false)
     private UserRole userRole;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<MemberEntity> members;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberEntity> members = new ArrayList<>();
 
     public UserEntity(String email, String password, UserRole userRole) {
         this.email = email;

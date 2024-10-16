@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -28,10 +29,12 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
+    public final ListPath<com.sparta.springtrello.domain.member.entity.MemberEntity, com.sparta.springtrello.domain.member.entity.QMemberEntity> members = this.<com.sparta.springtrello.domain.member.entity.MemberEntity, com.sparta.springtrello.domain.member.entity.QMemberEntity>createList("members", com.sparta.springtrello.domain.member.entity.MemberEntity.class, com.sparta.springtrello.domain.member.entity.QMemberEntity.class, PathInits.DIRECT2);
 
     public final StringPath password = createString("password");
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
 
     public final EnumPath<com.sparta.springtrello.domain.user.enums.UserRole> userRole = createEnum("userRole", com.sparta.springtrello.domain.user.enums.UserRole.class);
 
