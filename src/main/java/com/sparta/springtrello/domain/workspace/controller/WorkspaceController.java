@@ -1,6 +1,7 @@
 package com.sparta.springtrello.domain.workspace.controller;
 
 import com.sparta.springtrello.domain.common.dto.AuthUser;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceNameResponse;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceResponse;
@@ -16,39 +17,47 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users/{userId}")
 public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
 
     @PostMapping("/workspaces")
     public ResponseEntity<WorkspaceResponse> createWorkspace(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long userId,
             @Valid @RequestBody WorkspaceRequest workspaceRequest
     ){
         WorkspaceResponse workspaceResponse = workspaceService.createWorkspace(
+                userId,
                 authUser,
                 workspaceRequest
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(workspaceResponse);
+        // return ResponseEntity.status(HttpStatus.CREATED).body(workspaceResponse);
+        return ResponseEntity.ok(workspaceResponse);
     }
 
     @GetMapping("/workspaces")
     public ResponseEntity<List<WorkspaceNameResponse>> getWorkspaces(
-            // TODO [5] @Authentication AuthUser authUser,
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long userId
     ){
         List<WorkspaceNameResponse> workspaceNameResponses = workspaceService.getWorkspaces(
-                // TODO [6] authUser
+                userId,
+                authUser
         );
         return ResponseEntity.ok(workspaceNameResponses);
     }
 
     @PatchMapping("/workspaces/{workspaceId}")
     public ResponseEntity<WorkspaceResponse> updateWorkspace(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long userId,
             @PathVariable Long workspaceId,
             @Valid @RequestBody WorkspaceRequest workspaceRequest
     ){
         WorkspaceResponse workspaceResponse = workspaceService.updateWorkspace(
+                userId,
                 authUser,
                 workspaceId,
                 workspaceRequest
@@ -57,11 +66,12 @@ public class WorkspaceController {
     }
 
     @DeleteMapping("/workspaces/{workspaceId}")
-    public ResponseEntity<WorkspaceResponse> deleteWorkspace(
-            @AuthenticationPrincipal AuthUser authUser,
+    public ResponseEntity<Void> deleteWorkspace(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long userId,
             @PathVariable Long workspaceId
     ) {
-        WorkspaceResponse workspaceResponse = workspaceService.deleteWorkspace(authUser, workspaceId);
-        return ResponseEntity.ok(workspaceResponse);
+        workspaceService.deleteWorkspace(userId, authUser, workspaceId);
+        return ResponseEntity.ok(null);
     }
 }

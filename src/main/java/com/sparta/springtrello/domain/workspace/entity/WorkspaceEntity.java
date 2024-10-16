@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "workspaces")
 public class WorkspaceEntity extends Timestamped {
 
     @Id
@@ -28,7 +29,7 @@ public class WorkspaceEntity extends Timestamped {
     private String description;
 
     @Column(name = "created_by")
-    private UserEntity createdBy;
+    private long createdBy;
 
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardEntity> boards = new ArrayList<>();
@@ -36,9 +37,14 @@ public class WorkspaceEntity extends Timestamped {
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberEntity> members = new ArrayList<>();
 
-    public WorkspaceEntity(String name, String description) {
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private UserEntity user;
+
+    public WorkspaceEntity(String name, String description, long createdBy) {
         this.name = name;
         this.description = description;
+        this.createdBy = createdBy;
     }
 
     public void updateWorkspace(String name, String description) {
