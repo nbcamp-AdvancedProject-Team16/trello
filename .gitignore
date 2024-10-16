@@ -52,3 +52,5 @@ out/
 /src/main/generated/com/sparta/springtrello/domain/search/entity/QSearchEntity.java
 /src/main/generated/com/sparta/springtrello/domain/user/entity/QUserEntity.java
 /src/main/generated/com/sparta/springtrello/domain/workspace/entity/QWorkspaceEntity.java
+/src/main/generated/com/sparta/springtrello/domain/assignee/entity/QAssigneeEntity.java
+/src/main/generated/com/sparta/springtrello/domain/activity/entity/QActivityLogEntity.java
