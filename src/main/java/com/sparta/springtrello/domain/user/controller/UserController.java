@@ -4,6 +4,7 @@ import com.sparta.springtrello.domain.common.dto.AuthUser;
 import com.sparta.springtrello.domain.user.dto.request.UserChangePasswordRequest;
 import com.sparta.springtrello.domain.user.dto.request.UserDeleteRequest;
 import com.sparta.springtrello.domain.user.dto.response.UserResponse;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +24,15 @@ public class UserController {
 
     @PutMapping
     public void changePassword(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody UserChangePasswordRequest userChangePasswordRequest) {
-        userService.changePassword(authUser.getId(), userChangePasswordRequest);
+        userService.changePassword(authUser, userChangePasswordRequest);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping
     public void deleteUser(
-            @AuthenticationPrincipal AuthUser authUser,
+            @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody UserDeleteRequest userDeleteRequest) {
-        userService.deleteUser(authUser.getId(), userDeleteRequest);
+        userService.deleteUser(authUser, userDeleteRequest);
     }
 }

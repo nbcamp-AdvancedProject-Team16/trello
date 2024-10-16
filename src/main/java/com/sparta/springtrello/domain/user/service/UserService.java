@@ -4,10 +4,12 @@ import com.sparta.springtrello.domain.common.exception.InvalidRequestException;
 import com.sparta.springtrello.domain.user.dto.request.UserChangePasswordRequest;
 import com.sparta.springtrello.domain.user.dto.request.UserDeleteRequest;
 import com.sparta.springtrello.domain.user.dto.response.UserResponse;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +28,11 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(Long userId, UserChangePasswordRequest userChangePasswordRequest) {
+    public void changePassword(CustomUserDetails authUser, UserChangePasswordRequest userChangePasswordRequest) {
+        UserEntity.fromAuthUser(authUser);
         validateNewPassword(userChangePasswordRequest);
 
-        UserEntity user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("User not found"));
 
         if (passwordEncoder.matches(userChangePasswordRequest.getNewPassword(), user.getPassword())) {
@@ -52,9 +55,10 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId, UserDeleteRequest userDeleteRequest) {
+    public void deleteUser(CustomUserDetails authUser, UserDeleteRequest userDeleteRequest) {
+        UserEntity.fromAuthUser(authUser);
         // 1. 유저 존재 여부 확인
-        UserEntity user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("User not found"));
 
         // 2. 비밀번호 일치 여부 확인
