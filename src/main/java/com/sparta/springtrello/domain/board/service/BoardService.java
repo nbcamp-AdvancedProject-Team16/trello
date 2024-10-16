@@ -12,6 +12,7 @@ import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
+import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,19 +32,20 @@ public class BoardService {
     private final BoardImageService boardImageService;
 
     @Transactional
-    public BoardResponse createBoard(CustomUserDetails authUser, Long memberId, Long workspaceId, BoardRequest boardRequest, MultipartFile backgroundImage) {
+    public BoardResponse createBoard(CustomUserDetails authUser, Long workspaceId, BoardRequest boardRequest, MultipartFile backgroundImage) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 멤버 여부
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+        // 멤버 여부 확인
+        // 워크스페이스에 속한 멤버 여부 확인
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 보드 생성이 불가능
         validatePermission(member);
 
         // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
+        WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // 배경 이미지 업로드 (배경 이미지가 있으면 업로드 후 URL 설정)
@@ -59,7 +61,8 @@ public class BoardService {
         BoardEntity board = new BoardEntity(
                 boardRequest.getTitle(),
                 backgroundColor,
-                backgroundImageUrl
+                backgroundImageUrl,
+                workspace
         );
 
         // 제목이 비어 있으면 예외 처리
@@ -82,20 +85,16 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse updateBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest, MultipartFile backgroundImage) {
+    public BoardResponse updateBoard(Long boardId, Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest, MultipartFile backgroundImage) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+        // 워크스페이스 멤버 여부 확인
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 보드를 수정할 수 없음
         validatePermission(member);
-
-        // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // BoardEntity 찾기햐
         BoardEntity existingBoard = boardRepository.findById(boardId)
@@ -134,20 +133,16 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser) {
+    public void deleteBoard(Long boardId, Long workspaceId, CustomUserDetails authUser) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
+        // 워크스페이스 멤버 여부 확인
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 보드를 삭제할 수 없음
         validatePermission(member);
-
-        // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // BoardEntity 찾기
         BoardEntity board = boardRepository.findById(boardId)
@@ -158,17 +153,13 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse getBoard(Long memberId, Long boardId, Long workspaceId, CustomUserDetails authUser) {
+    public BoardResponse getBoard(Long boardId, Long workspaceId, CustomUserDetails authUser) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 로그인 여부 확인
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
-
-        // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
+        // 워크스페이스 멤버 여부 확인
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
 
         // 보드 존재 여부 확인
         BoardEntity board = boardRepository.findById(boardId)

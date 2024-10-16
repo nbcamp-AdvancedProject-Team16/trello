@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/members/{memberId}/workspace/{workspaceId}/boards")
+@RequestMapping("/workspaces/{workspaceId}/boards")
 public class BoardController {
 
     private final BoardService boardService;
@@ -23,12 +23,14 @@ public class BoardController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BoardResponse>> createBoard(
             @AuthenticationPrincipal CustomUserDetails authUser,
-            @PathVariable Long memberId,
             @PathVariable Long workspaceId,
             @RequestPart("boardRequest") BoardRequest boardRequest,
             @RequestPart(value = "backgroundImage", required = false) MultipartFile backgroundImage) {
+        if (authUser == null) {
+            return ResponseEntity.status(403).body(new ApiResponse<>(403, "인증되지 않은 사용자입니다.", null));
+        }
         try {
-            BoardResponse response = boardService.createBoard(authUser, memberId, workspaceId, boardRequest, backgroundImage);
+            BoardResponse response = boardService.createBoard(authUser, workspaceId, boardRequest, backgroundImage);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -39,13 +41,12 @@ public class BoardController {
     @PatchMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<BoardResponse>> updateBoard(
             @AuthenticationPrincipal CustomUserDetails authUser,
-            @PathVariable Long memberId,
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
             @RequestPart("boardRequest") BoardRequest boardRequest,
             @RequestPart(value = "backgroundImage", required = false) MultipartFile backgroundImage) {
         try {
-            BoardResponse response = boardService.updateBoard(memberId, boardId, workspaceId, authUser, boardRequest, backgroundImage);
+            BoardResponse response = boardService.updateBoard(boardId, workspaceId, authUser, boardRequest, backgroundImage);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -55,12 +56,11 @@ public class BoardController {
 
     @DeleteMapping("/{boardId}")
     public ResponseEntity<ApiResponse<Void>> deleteBoard(
-            @PathVariable Long memberId,
             @PathVariable Long boardId,
             @PathVariable Long workspaceId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
         try {
-            boardService.deleteBoard(memberId, boardId, workspaceId, authUser);
+            boardService.deleteBoard(boardId, workspaceId, authUser);
             return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())
@@ -70,12 +70,11 @@ public class BoardController {
 
     @GetMapping("/{boardId}")
     public ResponseEntity<ApiResponse<BoardResponse>> getBoard(
-            @PathVariable Long memberId,
             @PathVariable Long boardId,
             @PathVariable Long workspaceId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
         try {
-            BoardResponse response = boardService.getBoard(memberId, boardId, workspaceId, authUser);
+            BoardResponse response = boardService.getBoard(boardId, workspaceId, authUser);
             return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
         } catch (CustomException e) {
             return ResponseEntity.status(e.getStatus())

@@ -1,11 +1,8 @@
 package com.sparta.springtrello.domain.workspace.service;
 
-import com.sparta.springtrello.domain.member.entity.MemberEntity;
-import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.enums.UserRole;
-import com.sparta.springtrello.domain.user.repository.UserRepository;
 import com.sparta.springtrello.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceNameResponse;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceResponse;
@@ -54,9 +51,9 @@ public class WorkspaceService {
     }
 
     public List<WorkspaceNameResponse> getWorkspaces(CustomUserDetails authUser) {
-        // WorkspaceRepository의 findByMembers_UserId 메서드를 사용해 유저의 워크스페이스 목록 조회
+        // WorkspaceRepository 의 findByMembers_UserId 메서드를 사용해 유저의 워크스페이스 목록 조회
         List<WorkspaceEntity> workspaces = workspaceRepository.findByMembers_UserId(authUser.getId());
-        // WorkspaceEntity 목록을 WorkspaceNameResponse로 변환하여 반환
+        // WorkspaceEntity 목록을 WorkspaceNameResponse 로 변환하여 반환
         return workspaces.stream()
                 .map(workspace -> new WorkspaceNameResponse(workspace.getName()))
                 .collect(Collectors.toList());
