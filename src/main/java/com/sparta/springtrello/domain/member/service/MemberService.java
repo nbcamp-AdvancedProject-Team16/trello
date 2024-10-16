@@ -33,6 +33,8 @@ public class MemberService {
         MemberEntity newMember = new MemberEntity(user, workspace, memberRoleSaveRequest.getMemberRole());
         MemberEntity savedMember = memberRepository.save(newMember);
 
+        workspace.getMembers().add(savedMember);
+
         return new MemberResponse(savedMember.getId(), user.getId(), savedMember.getMemberRole());
     }
 

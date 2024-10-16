@@ -37,10 +37,6 @@ public class WorkspaceEntity extends Timestamped {
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberEntity> members = new ArrayList<>();
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private UserEntity user;
-
     public WorkspaceEntity(String name, String description, long createdBy) {
         this.name = name;
         this.description = description;

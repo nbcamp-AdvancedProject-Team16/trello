@@ -1,10 +1,9 @@
 package com.sparta.springtrello.domain.workspace.service;
 
-import com.sparta.springtrello.domain.board.entity.BoardEntity;
-import com.sparta.springtrello.domain.common.dto.AuthUser;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
+import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.enums.UserRole;
 import com.sparta.springtrello.domain.user.repository.UserRepository;
 import com.sparta.springtrello.domain.workspace.dto.request.WorkspaceRequest;
@@ -14,16 +13,10 @@ import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.exception.ApiException;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.connector.Response;
-import org.apache.coyote.BadRequestException;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,11 +27,10 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final MemberRepository memberRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public WorkspaceResponse createWorkspace(Long userId, CustomUserDetails authUser, WorkspaceRequest workspaceRequest) {
-        userRepository.findByEmail(authUser.getEmail()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+    public WorkspaceResponse createWorkspace(CustomUserDetails authUser, WorkspaceRequest workspaceRequest) {
+        UserEntity.fromAuthUser(authUser);
 
         if(!authUser.getRole().equals(UserRole.ADMIN)){
             throw new ApiException(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다.");
@@ -62,8 +54,8 @@ public class WorkspaceService {
         );
     }
 
-    public List<WorkspaceNameResponse> getWorkspaces(Long userId, CustomUserDetails authUser) {
-        userRepository.findByEmail(authUser.getEmail()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+    public List<WorkspaceNameResponse> getWorkspaces(CustomUserDetails authUser) {
+        UserEntity.fromAuthUser(authUser);
 
         // 1. 유저가 가입된 멤버 엔티티 조회
         List<MemberEntity> memberList = memberRepository.findAllByUserId(authUser.getId());
@@ -75,8 +67,8 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public WorkspaceResponse updateWorkspace(Long userId, CustomUserDetails authUser, Long workspaceId, WorkspaceRequest workspaceRequest) {
-        userRepository.findByEmail(authUser.getEmail()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+    public WorkspaceResponse updateWorkspace(CustomUserDetails authUser, Long workspaceId, WorkspaceRequest workspaceRequest) {
+        UserEntity.fromAuthUser(authUser);
 
         // TODO [9] ADMIN 권한 확인
         if(!authUser.getRole().equals(UserRole.ADMIN)){
@@ -102,8 +94,8 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public void deleteWorkspace(Long userId, CustomUserDetails authUser, Long workspaceId) {
-        userRepository.findByEmail(authUser.getEmail()).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+    public void deleteWorkspace(CustomUserDetails authUser, Long workspaceId) {
+        UserEntity.fromAuthUser(authUser);
 
         // TODO [] ADMIN 권한 확인
         if(!authUser.getRole().equals(UserRole.ADMIN)){
