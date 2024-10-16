@@ -18,6 +18,7 @@ public class AssigneeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "card", nullable = false)
     private CardEntity card;
