@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.card.dto;
 
+import com.sparta.springtrello.domain.card.entity.CardEntity;
 import lombok.Getter;
 
 import java.time.LocalDate;

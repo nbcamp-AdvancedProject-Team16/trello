@@ -15,7 +15,7 @@ public class AssigneeResponse {
 
     public AssigneeResponse(AssigneeEntity assigneeEntity,String message) {
         this.id = assigneeEntity.getId();
-        this.username = assigneeEntity.getUser().getUsername();
+        this.username = assigneeEntity.getUser().getEmail();
         this.message = message;
         this.assignedAt = assigneeEntity.getAssignedAt();
     }

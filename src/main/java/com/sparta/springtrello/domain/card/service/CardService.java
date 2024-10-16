@@ -1,13 +1,12 @@
 package com.sparta.springtrello.domain.card.service;
 
-import com.sparta.springtrello.domain.activity.repository.ActivityLogRepository;
 import com.sparta.springtrello.domain.activity.service.ActivityLogService;
 import com.sparta.springtrello.domain.card.dto.CardRequest;
 import com.sparta.springtrello.domain.card.dto.CardResponse;
 import com.sparta.springtrello.domain.card.entity.CardEntity;
 import com.sparta.springtrello.domain.card.repository.CardRepository;
 import com.sparta.springtrello.domain.list.entity.ListEntity;
-import com.sparta.springtrello.domain.list.repository.ListReposiotory;
+import com.sparta.springtrello.domain.list.repository.ListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class CardService {
 
     private final CardRepository cardRepository;
-    private final ListReposiotory listRepository;
+    private final ListRepository listRepository;
     private final ActivityLogService activityLogService;
 
 
@@ -33,11 +32,7 @@ public class CardService {
 
         activityLogService.saveLog("카드가 생성되었습니다. 카드 ID: " + savedCard.getId());
 
-        CardResponse cardResponse =  new CardResponse(savedCard);
-
-        cardResponse.message("카드가 생성되었습니다.");
-
-        return cardResponse;
+        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
     }
 
     public CardResponse getCard(Long listId, Long cardId) {
@@ -46,10 +41,7 @@ public class CardService {
 
         activityLogService.saveLog("카드가 조회되었습니다. 카드 ID: " + card.getId());
 
-        CardResponse cardResponse = new CardResponse(card);
-
-        cardResponse.message("카드를 조회했습니다.");
-        return cardResponse;
+        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
     }
 
     public CardResponse updateCard(Long listId, Long cardId, CardRequest cardRequest) {
@@ -61,9 +53,7 @@ public class CardService {
 
         activityLogService.saveLog("카드가 수정되었습니다. 카드 ID: " + card.getId());
 
-        CardResponse cardResponse = new CardResponse(card);
-        cardResponse.message("카드를 수정했습니다.");
-        return cardResponse;
+        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
     }
 
     public void deleteCard(Long listId, Long cardId) {
@@ -72,9 +62,6 @@ public class CardService {
 
         // 활동 내역 저장 (카드 삭제)
         activityLogService.saveLog("카드가 삭제되었습니다. 카드 ID: " + card.getId());
-
-        CardResponse cardResponse = new CardResponse(card);
-        cardResponse.message("카드를 삭제했습니다.");
 
         cardRepository.delete(card);
     }
