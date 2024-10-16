@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "card")
+@Table(name = "cards")
 public class CardEntity extends Timestamped {
 
     @Id
