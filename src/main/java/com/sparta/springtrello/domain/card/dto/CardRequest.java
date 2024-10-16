@@ -11,5 +11,4 @@ public class CardRequest {
     private String title;
     private String description;
     private LocalDate dueDate;
-//    private String attachment;
 }
