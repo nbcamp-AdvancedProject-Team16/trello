@@ -28,10 +28,10 @@ public class QUserEntity extends EntityPathBase<UserEntity> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    //inherited
-    public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
-
     public final StringPath password = createString("password");
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
 
     public final EnumPath<com.sparta.springtrello.domain.user.enums.UserRole> userRole = createEnum("userRole", com.sparta.springtrello.domain.user.enums.UserRole.class);
 
