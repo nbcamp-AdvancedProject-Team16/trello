@@ -3,6 +3,8 @@ package com.sparta.springtrello.domain.board.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.sparta.springtrello.domain.common.dto.UploadFileResponse;
+import com.sparta.springtrello.domain.common.service.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,88 +27,43 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class BoardImageService {
-    private final AmazonS3 amazonS3;
 
-    @Value("${cloud.aws.s3.bucketName}")
-    private String bucketName;
+    private final S3UploadService s3UploadService;
 
-    public String upload(MultipartFile image) {
-        if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
-            throw new AmazonS3Exception("이미지를 찾을 수 없습니다.");
+    public UploadFileResponse upload(MultipartFile image) {
+        if (image.isEmpty() || image.getOriginalFilename() == null) {
+            throw new IllegalArgumentException("이미지를 찾을 수 없습니다.");
         }
 
         return this.uploadImage(image);
     }
 
-    public String uploadImage(MultipartFile image) {
+    public UploadFileResponse uploadImage(MultipartFile image) {
         this.validateImageFileException(image.getOriginalFilename());
 
         try {
-            return this.uploadImageToS3(image);
+            // S3에 업로드하고, 업로드된 파일의 메타데이터 반환
+            return s3UploadService.uploadImageToS3(image);
         } catch (IOException e) {
-            throw new AmazonS3Exception("이미지를 업로드할 수 없습니다.", e);
+            throw new RuntimeException("이미지를 업로드할 수 없습니다.", e);
         }
     }
 
     public void validateImageFileException(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');
         if (lastDotIndex == -1) {
-            throw new AmazonS3Exception("이미지를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("이미지를 찾을 수 없습니다.");
         }
 
         String extension = fileName.substring(lastDotIndex + 1).toLowerCase();
-        List<String> allowedExtenstionList = Arrays.asList("jpg", "jpeg", "png", "gif");
+        List<String> allowedExtensionList = Arrays.asList("jpg", "jpeg", "png", "gif");
 
-        if (!allowedExtenstionList.contains(extension)) {
-            throw new AmazonS3Exception("적절한 이미지 파일이 아닙니다.");
+        if (!allowedExtensionList.contains(extension)) {
+            throw new IllegalArgumentException("적절한 이미지 파일이 아닙니다.");
         }
     }
 
-    private String uploadImageToS3(MultipartFile image) throws IOException {
-        String originalFilename = image.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String s3FileName = UUID.randomUUID().toString().substring(0, 10) + originalFilename;
-
-        InputStream inputStream = image.getInputStream();
-        byte[] bytes = IOUtils.toByteArray(inputStream);
-
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType("image/" + extension);
-        metadata.setContentLength(bytes.length);
-
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-
-        try {
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead);
-
-            amazonS3.putObject(putObjectRequest);
-        } catch (AmazonS3Exception e) {
-            throw new AmazonS3Exception("이미지를 S3 버킷에 업로드할 수 없습니다.", e);
-        } finally {
-            byteArrayInputStream.close();
-            inputStream.close();
-        }
-
-        return amazonS3.getUrl(bucketName, s3FileName).toString();
-    }
-
-    public void deleteImageFromS3(String imageAddress) {
-        String key = getKeyFromImageAddress(imageAddress);
-        try {
-            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
-        } catch (AmazonS3Exception e) {
-            throw new AmazonS3Exception("이미지를 S3 버킷으로부터 삭제할 수 없습니다.", e);
-        }
-    }
-
-    public String getKeyFromImageAddress(String imageAddress) {
-        try {
-            URL url = new URL(imageAddress);
-            String decodingKey = URLDecoder.decode(url.getPath(), "UTF-8");
-            return decodingKey.substring(1);
-        } catch (MalformedURLException | UnsupportedEncodingException e) {
-            throw new AmazonS3Exception("유효하지 않은 이미지 URL입니다.", e);
-        }
+    public void deleteBackgroundImage(String imageUrl) {
+        s3UploadService.deleteImageFromS3(imageUrl);
     }
 }
