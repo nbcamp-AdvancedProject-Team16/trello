@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.board.entity;
 
+import com.sparta.springtrello.domain.board.dto.request.BoardRequest;
 import com.sparta.springtrello.domain.common.entity.Timestamped;
 import com.sparta.springtrello.domain.list.entity.ListEntity;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
@@ -45,9 +46,9 @@ public class BoardEntity extends Timestamped {
         this.workspace = workspace;
     }
 
-    public void update(String updatedTitle, String updatedBackgroundColor, String updatedBackgroundImageUrl) {
-        this.title = updatedTitle;
-        this.backgroundColor = updatedBackgroundColor;
-        this.backgroundImageUrl = updatedBackgroundImageUrl;
+    public void update(BoardRequest boardRequest) {
+        this.title = boardRequest.getTitle();
+        this.backgroundColor = boardRequest.getBackgroundColor() != null ? boardRequest.getBackgroundColor() : this.backgroundColor;
+        this.backgroundImageUrl = boardRequest.getBackgroundImageUrl();
     }
 }
