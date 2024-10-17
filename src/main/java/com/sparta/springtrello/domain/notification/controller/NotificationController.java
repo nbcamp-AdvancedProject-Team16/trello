@@ -32,8 +32,6 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> createNotification(@RequestBody NotificationRequest request) {
         NotificationResponse notification = notificationProducer.createNotification(
                 request.getMessage(),
-                request.getUserId(),
-                request.getWorkspaceId(),
                 request.getType()
         );
 
@@ -42,8 +40,8 @@ public class NotificationController {
 
     // 알림 조회
     @GetMapping
-    public ResponseEntity<CommonResponse<List<NotificationResponse>>> getAllNotifications(@AuthenticationPrincipal CustomUserDetails authUser) {
-        List<NotificationResponse> notificationResponses = notificationService.getAllNotifications(authUser);
+    public ResponseEntity<CommonResponse<List<NotificationResponse>>> getAllNotifications() {
+        List<NotificationResponse> notificationResponses = notificationService.getAllNotifications();
         CommonResponse<List<NotificationResponse>> response = new CommonResponse<>(200, notificationResponses);
         return ResponseEntity.ok(response);
     }

@@ -34,15 +34,21 @@ public class NotificationService {
 
     // 알림 생성
     @Transactional
-    public NotificationResponse createNotification(String message, Long userId, Long workspaceId, String type) {
+    public NotificationResponse createNotification(String message, String type) {
 
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+//        // userId가 null일 경우, RuntimeException 대신 null 처리
+//        UserEntity user = userId != null
+//                ? userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."))
+//                : null;
+//
+//        // workspaceId가 null일 경우, workspace를 null로 설정
+//        WorkspaceEntity workspace = workspaceId != null
+//                ? workspaceRepository.findById(workspaceId)
+//                .orElseThrow(() -> new RuntimeException("작업공간을 찾을 수 없습니다."))
+//                : null;
 
-        WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new RuntimeException("작업공간을 찾을 수 없습니다."));
-
-        NotificationEntity notification = NotificationEntity.createWithDefaults(message, user, workspace, type);
+        NotificationEntity notification = NotificationEntity.createWithDefaults(message, type);
 
         // 알림 설정 확인
         NotificationSettingEntity settings = notificationSettingRepository.findAll().stream().findFirst()
@@ -60,10 +66,7 @@ public class NotificationService {
     }
 
     // 알림 조회
-    public List<NotificationResponse> getAllNotifications(CustomUserDetails authUser) {
-
-        UserEntity user = UserEntity.fromAuthUser(authUser);
-
+    public List<NotificationResponse> getAllNotifications() {
         List<NotificationEntity> notifications = notificationRepository.findAll();
 
         if (notifications.isEmpty()) {

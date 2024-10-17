@@ -20,23 +20,22 @@ public class NotificationEntity extends Timestamped{
     @Column(nullable = false, length = 500)
     private String message;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workspace_id", nullable = false)
-    private WorkspaceEntity workspace;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = true)
+//    private UserEntity user;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "workspace_id", nullable = true)
+//    private WorkspaceEntity workspace;
 
     @Column(name = "type", nullable = false)
     private String type; // 예: "comment", "member_add" 등
 
     // 새로운 메서드: 기본값을 설정하는 정적 메서드
-    public static NotificationEntity createWithDefaults(String message, UserEntity user, WorkspaceEntity workspace, String type) {
+    public static NotificationEntity createWithDefaults(String message, String type) {
         NotificationEntity notification = new NotificationEntity();
         notification.message = message;
-        notification.user = user;
-        notification.workspace = workspace;
+
         notification.type = type;
         return notification;
     }
