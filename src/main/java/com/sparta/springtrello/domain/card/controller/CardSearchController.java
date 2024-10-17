@@ -21,12 +21,12 @@ public class CardSearchController {
     public ResponseEntity<Page<CardSearchResponse>> searchCards(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "null") String title,
-            @RequestParam(defaultValue = "null") String description,
-            @RequestParam(defaultValue = "null") LocalDate dueDate,
-            @RequestParam(defaultValue = "null") String assignee
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) LocalDate dueDate,
+            @RequestParam(required = false) String assignee
     ) {
-        Page<CardSearchResponse> cards = cardSearchService.getCards(page, size, title, description, dueDate);
+        Page<CardSearchResponse> cards = cardSearchService.searchCards(page, size, title, description, dueDate, assignee);
         return ResponseEntity.ok(cards);
     }
 }

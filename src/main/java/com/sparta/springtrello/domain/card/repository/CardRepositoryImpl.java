@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.springtrello.domain.assignee.entity.QAssigneeEntity;
 import com.sparta.springtrello.domain.card.dto.CardSearchResponse;
 import com.sparta.springtrello.domain.card.entity.QCardEntity;
-import com.sparta.springtrello.domain.member.entity.QMemberEntity;
+import com.sparta.springtrello.domain.user.entity.QUserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +25,7 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
 
     QCardEntity card = QCardEntity.cardEntity;
     QAssigneeEntity assigneeEntity = QAssigneeEntity.assigneeEntity;
+    QUserEntity user = QUserEntity.userEntity;
 
     @Override
     public Page<CardSearchResponse> searchCards(
@@ -82,7 +82,7 @@ public class CardRepositoryImpl implements CardRepositoryCustom {
 
     private BooleanExpression assigneeNameContains(String assignee) {
         return assignee != null
-                ? QMemberEntity.memberEntity
+                ? QUserEntity.userEntity.username.contains(assignee)
                 : null;
     }
 }

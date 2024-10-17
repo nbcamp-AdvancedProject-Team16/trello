@@ -16,7 +16,7 @@ public class CardSearchService {
 
     private final CardRepository cardRepository;
 
-    public Page<CardSearchResponse> getCards(
+    public Page<CardSearchResponse> searchCards(
             int page, int size, String title, String description, LocalDate dueDate, String assignee) {
 
         Pageable pageable = PageRequest.of(page-1, size);

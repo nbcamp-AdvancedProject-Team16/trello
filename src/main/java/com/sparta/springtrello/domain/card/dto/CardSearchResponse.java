@@ -8,12 +8,24 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
 public class CardSearchResponse {
 
-    private final String title;
-    private final String description;
-    private final LocalDate dueDate;
-    private List<AssigneeResponse> assigneeResponseList;
+    private long id;
+    private String title;
+    private String description;
+    private LocalDate dueDate;
+    private List<AssigneeResponse> assignees;
 
+    public CardSearchResponse(long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
+    public CardSearchResponse(long id, String title, String description, LocalDate dueDate, List<AssigneeResponse> assignees) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.dueDate = dueDate;
+        this.assignees = assignees;
+    }
 }
