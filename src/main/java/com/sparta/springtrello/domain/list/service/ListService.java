@@ -27,24 +27,20 @@ public class ListService {
     private final WorkspaceRepository workspaceRepository;
 
     @Transactional
-    public ListResponse createList(Long memberId, Long workspaceId, Long boardId, CustomUserDetails authUser, ListRequest listRequest) {
+    public ListResponse createList(Long boardId, CustomUserDetails authUser, ListRequest listRequest) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 멤버 여부
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
-
-        // 읽기 전용 멤버는 보드 생성이 불가능
-        validatePermission(member);
-
-        // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
-
-        // BoardEntity 찾기
+        // Board 찾기
         BoardEntity board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+
+        // 멤버 여부 확인과 워크스페이스 찾기 (한 번에 처리)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), board.getWorkspace().getId())
+                .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 리스트 생성을 할 수 없음
+        validatePermission(member);
 
         // 리스트 생성
         ListEntity listEntity = new ListEntity(
@@ -67,25 +63,20 @@ public class ListService {
     }
 
     @Transactional
-    public ListResponse updateList(Long memberId, Long boardId, Long workspaceId, Long listId, CustomUserDetails authUser, ListRequest listRequest) {
+    public ListResponse updateList(Long boardId,  Long listId, CustomUserDetails authUser, ListRequest listRequest) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 멤버 여부
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
-
-        // 읽기 전용 멤버는 보드 생성이 불가능
-        validatePermission(member);
-
-        // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
-
-        // BoardEntity 찾기
-        boardRepository.findById(boardId)
+        // Board 찾기
+        BoardEntity board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
 
+        // 멤버 여부 확인과 워크스페이스 찾기 (한 번에 처리)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), board.getWorkspace().getId())
+                .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 리스트 수정을 할 수 없음
+        validatePermission(member);
 
         // ListEntity 찾기
         ListEntity existingList = listRepository.findById(listId)
@@ -113,24 +104,20 @@ public class ListService {
     }
 
     @Transactional
-    public void deleteList(Long memberId, Long workspaceId, Long boardId, Long listId, CustomUserDetails authUser) {
+    public void deleteList(Long boardId, Long listId, CustomUserDetails authUser) {
         // User 인증
-        UserEntity.fromAuthUser(authUser);
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        // 멤버 여부
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(403, "멤버가 아닙니다."));
-
-        // 읽기 전용 멤버는 보드 생성이 불가능
-        validatePermission(member);
-
-        // WorkspaceEntity 찾기
-        workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
-
-        // BoardEntity 찾기
-        boardRepository.findById(boardId)
+        // Board 찾기
+        BoardEntity board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+
+        // 멤버 여부 확인과 워크스페이스 찾기 (한 번에 처리)
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), board.getWorkspace().getId())
+                .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 리스트 삭제할 수 없음
+        validatePermission(member);
 
         // ListEntity 찾기
         ListEntity listEntity = listRepository.findById(listId)
