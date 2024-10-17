@@ -10,6 +10,7 @@ import com.sparta.springtrello.domain.list.repository.ListRepository;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class ListService {
     private final ListRepository listRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public ListResponse createList(Long boardId, CustomUserDetails authUser, ListRequest listRequest) {
@@ -52,6 +54,11 @@ public class ListService {
 
         // 리스트 저장
         ListEntity savedList = listRepository.save(listEntity);
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]에 리스트[%s]를 생성했습니다.", authUser.getEmail(), board.getTitle(), listRequest.getTitle());
+        notificationService.createNotification(message, "list");
+
 
         // ListResponseDto 반환
         return new ListResponse(
@@ -95,6 +102,11 @@ public class ListService {
         // 저장
         ListEntity updatedList = listRepository.save(existingList);
 
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]의 리스트[%s]를 수정했습니다.", authUser.getEmail(), board.getTitle(), updatedList.getTitle());
+        notificationService.createNotification(message, "list");
+
+
         // ListResponseDto 반환
         return new ListResponse(
                 updatedList.getId(),
@@ -127,6 +139,10 @@ public class ListService {
 
         // 리스트 삭제 (리스트 내의 모든 카드와 관련 데이터도 삭제됨)
         listRepository.delete(listEntity);
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]의 리스트[%s]를 삭제했습니다.", authUser.getEmail(), board.getTitle(), listEntity.getTitle());
+        notificationService.createNotification(message, "list");
     }
 
     // 리스트 순서 증가 (위로 이동하는 경우)

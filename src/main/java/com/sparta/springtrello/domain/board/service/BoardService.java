@@ -10,6 +10,7 @@ import com.sparta.springtrello.domain.list.dto.response.ListResponse;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService; // 슬랙 알림 서비스 추가
 
     @Transactional
     public BoardResponse createBoard(CustomUserDetails authUser, Long workspaceId, BoardRequest boardRequest) {
@@ -50,6 +52,11 @@ public class BoardService {
 
         // 보드 저장
         BoardEntity savedBoard = boardRepository.save(board);
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]를 생성했습니다.", authUser.getEmail(), savedBoard.getTitle());
+        notificationService.createNotification(message, "board"); // 알림 생성
+
 
         // 결과 반환
         return new BoardResponse(
@@ -78,6 +85,10 @@ public class BoardService {
 
         existingBoard.update(boardRequest);
 
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]를 수정했습니다.", authUser.getEmail(), existingBoard.getTitle());
+        notificationService.createNotification(message,  "board"); // 알림 생성
+
         // 결과 반환
         return new BoardResponse(
                 existingBoard.getId(),
@@ -102,6 +113,10 @@ public class BoardService {
 
         // BoardEntity 찾기
         BoardEntity board = findBoardById(boardId);
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]를 삭제했습니다.", authUser.getEmail(), board.getTitle());
+        notificationService.createNotification(message,  "board"); // 알림 생성
 
         // board 삭제 (연관된 리스트와 카드도 함께 삭제됨)
         boardRepository.delete(board);
@@ -131,6 +146,10 @@ public class BoardService {
                                 .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 보드[%s]의 정보를 조회했습니다.", authUser.getEmail(), board.getTitle());
+        notificationService.createNotification(message,  "board"); // 알림 생성
 
         // 결과 반환
         return new BoardResponse(

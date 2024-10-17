@@ -15,6 +15,7 @@ import com.sparta.springtrello.domain.list.repository.ListRepository;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.enums.UserRole;
@@ -35,6 +36,7 @@ public class CardService {
     private final AssigneeRepository assigneeRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public CardResponse createCard(CustomUserDetails authUser,Long listId, CardRequest cardRequest) {
@@ -53,6 +55,10 @@ public class CardService {
         CardEntity savedCard = cardRepository.save(card);
 
         activityLogService.saveLog("카드가 생성되었습니다. 카드 ID: " + savedCard.getId());
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 카드[%s]를 생성했습니다.", user.getEmail(), savedCard.getTitle());
+        notificationService.createNotification(message,  "card");
 
         return new CardResponse(savedCard.getTitle(), savedCard.getDescription(), savedCard.getDueDate());
     }
@@ -73,6 +79,10 @@ public class CardService {
         List<AssigneeEntity> assigneeEntity = assigneeRepository.findByCardId(cardId);
 
        List<CommentEntity> commentEntities = commentRepository.findByCardId(cardId);
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 카드[%s]를 조회했습니다.", user.getEmail(), card.getTitle());
+        notificationService.createNotification(message,  "card");
 
         activityLogService.saveLog("카드가 조회되었습니다. 카드 ID: " + card.getId());
 
@@ -98,6 +108,10 @@ public class CardService {
 
         activityLogService.saveLog("카드가 수정되었습니다. 카드 ID: " + card.getId());
 
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 카드[%s]를 수정했습니다.", user.getEmail(), card.getTitle());
+        notificationService.createNotification(message,  "card");
+
         return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
     }
 
@@ -117,6 +131,10 @@ public class CardService {
         validatePermission(member);
 
         activityLogService.saveLog("카드가 삭제되었습니다. 카드 ID: " + card.getId());
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 카드[%s]를 삭제했습니다.", user.getEmail(), card.getTitle());
+        notificationService.createNotification(message,  "card");
 
         cardRepository.delete(card);
     }

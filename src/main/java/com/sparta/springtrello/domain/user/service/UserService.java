@@ -2,6 +2,7 @@ package com.sparta.springtrello.domain.user.service;
 
 import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.exception.InvalidRequestException;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.dto.request.UserChangePasswordRequest;
 import com.sparta.springtrello.domain.user.dto.request.UserDeleteRequest;
 import com.sparta.springtrello.domain.user.dto.response.UserResponse;
@@ -21,10 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
 
     public UserResponse getUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(404, "유저를 찾을 수 없습니다."));
+
+        // 비밀번호 변경 후 슬랙 알림 전송
+        String message = String.format("%s님의 정보를 조회했습니다.", user.getEmail());
+
+        // 알림 생성
+        notificationService.createNotification(message, "user");
+
         return new UserResponse(user.getId(), user.getEmail());
     }
 
@@ -43,6 +52,12 @@ public class UserService {
         if (!passwordEncoder.matches(userChangePasswordRequest.getOldPassword(), user.getPassword())) {
             throw new CustomException(400, "잘못된 비밀번호입니다.");
         }
+
+        // 비밀번호 변경 후 슬랙 알림 전송
+        String message = String.format("%s님이 비밀번호를 변경했습니다.", user.getEmail());
+
+        // 알림 생성
+        notificationService.createNotification(message, "user");
 
         user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
     }
@@ -66,6 +81,10 @@ public class UserService {
         if (!passwordEncoder.matches(userDeleteRequest.getPassword(), user.getPassword())) {
             throw new CustomException(400, "잘못된 비밀번호입니다.");
         }
+
+        // 사용자 삭제 후 슬랙 알림 전송
+        String message = String.format("%s님이 계정을 삭제했습니다.", user.getEmail());
+        notificationService.createNotification(message, "user");
 
         // 3. 계정 삭제 처리
         userRepository.delete(user);
