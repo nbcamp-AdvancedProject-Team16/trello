@@ -43,7 +43,6 @@ public class WorkspaceService {
                 savedWorkspace.getId(),
                 savedWorkspace.getName(),
                 savedWorkspace.getDescription(),
-                // TODO [4] bearer 토큰에서 가져온 user 의 id
                 authUser.getId(),
                 savedWorkspace.getCreatedAt(),
                 savedWorkspace.getUpdatedAt()
@@ -63,7 +62,7 @@ public class WorkspaceService {
     public WorkspaceResponse updateWorkspace(CustomUserDetails authUser, Long workspaceId, WorkspaceRequest workspaceRequest) {
         UserEntity.fromAuthUser(authUser);
 
-        // TODO [9] ADMIN 권한 확인
+        // userRole 권한이 아닌 memberRole 권한으로 인증
         if(!authUser.getRole().equals(UserRole.ADMIN)){
             throw new ApiException(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다.");
         }
@@ -79,7 +78,6 @@ public class WorkspaceService {
                 workspace.getId(),
                 workspace.getName(),
                 workspace.getDescription(),
-                // TODO [4] bearer 토큰에서 가져온 user 의 id
                 authUser.getId(),
                 workspace.getCreatedAt(),
                 workspace.getUpdatedAt()
@@ -90,7 +88,9 @@ public class WorkspaceService {
     public void deleteWorkspace(CustomUserDetails authUser, Long workspaceId) {
         UserEntity.fromAuthUser(authUser);
 
-        // TODO [] ADMIN 권한 확인
+        // 워크스페이스가 존재하는지 확인
+
+        // 유저롤 권한이 아닌 멤버롤 권한으로 인증
         if(!authUser.getRole().equals(UserRole.ADMIN)){
             throw new ApiException(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다.");
         }
