@@ -12,8 +12,6 @@ import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
-import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
-import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,25 +24,18 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final WorkspaceRepository workspaceRepository;
     private final MemberRepository memberRepository;
-    private final BoardImageService boardImageService;
 
     @Transactional
     public BoardResponse createBoard(CustomUserDetails authUser, Long workspaceId, BoardRequest boardRequest) {
         // User 인증
-        UserEntity user = UserEntity.fromAuthUser(authUser);
+        UserEntity.fromAuthUser(authUser);
 
         // 멤버 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+        MemberEntity member = validateMemberInWorkspace(authUser.getId(), workspaceId);
 
         // 읽기 전용 멤버는 보드를 생성할 수 없음
         validatePermission(member);
-
-        // 워크스페이스 찾기
-        WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new CustomException(404, "해당 워크스페이스를 찾을 수 없습니다."));
 
         // 배경색 설정 (없으면 기본값)
         String backgroundColor = boardRequest.getBackgroundColor() != null ? boardRequest.getBackgroundColor() : "#FFFFFF";
@@ -54,13 +45,8 @@ public class BoardService {
                 boardRequest.getTitle(),
                 backgroundColor,
                 boardRequest.getBackgroundImageUrl(),
-                workspace
+                member.getWorkspace()
         );
-
-        // 제목 유효성 검사
-        if (boardRequest.getTitle() == null || boardRequest.getTitle().isEmpty()) {
-            throw new CustomException(400, "제목이 비어 있습니다.");
-        }
 
         // 보드 저장
         BoardEntity savedBoard = boardRepository.save(board);
@@ -79,60 +65,43 @@ public class BoardService {
     @Transactional
     public BoardResponse updateBoard(Long boardId, Long workspaceId, CustomUserDetails authUser, BoardRequest boardRequest) {
         // User 인증
-        UserEntity user = UserEntity.fromAuthUser(authUser);
+        UserEntity.fromAuthUser(authUser);
 
         // 워크스페이스 멤버 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+        MemberEntity member = validateMemberInWorkspace(authUser.getId(), workspaceId);
 
         // 읽기 전용 멤버는 보드를 수정할 수 없음
         validatePermission(member);
 
         // BoardEntity 찾기
-        BoardEntity existingBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+        BoardEntity existingBoard = findBoardById(boardId);
 
-        // 배경색과 이미지 업데이트 처리
-        String updatedTitle = boardRequest.getTitle();
-        String updatedBackgroundColor = boardRequest.getBackgroundColor() != null ? boardRequest.getBackgroundColor() : existingBoard.getBackgroundColor();
-        String updatedBackgroundImageUrl = boardRequest.getBackgroundImageUrl();
-
-        existingBoard.update(updatedTitle, updatedBackgroundColor, updatedBackgroundImageUrl);
-
-        // 제목 유효성 검사
-        if (updatedTitle == null || updatedTitle.isEmpty()) {
-            throw new CustomException(400, "보드 제목은 필수 항목입니다.");
-        }
-
-        // 보드 저장
-        BoardEntity savedBoard = boardRepository.save(existingBoard);
+        existingBoard.update(boardRequest);
 
         // 결과 반환
         return new BoardResponse(
-                savedBoard.getId(),
-                savedBoard.getTitle(),
-                savedBoard.getBackgroundColor(),
-                savedBoard.getBackgroundImageUrl(),
-                savedBoard.getCreatedAt(),
-                savedBoard.getUpdatedAt()
+                existingBoard.getId(),
+                existingBoard.getTitle(),
+                existingBoard.getBackgroundColor(),
+                existingBoard.getBackgroundImageUrl(),
+                existingBoard.getCreatedAt(),
+                existingBoard.getUpdatedAt()
         );
     }
 
     @Transactional
     public void deleteBoard(Long boardId, Long workspaceId, CustomUserDetails authUser) {
         // User 인증
-        UserEntity user = UserEntity.fromAuthUser(authUser);
+        UserEntity.fromAuthUser(authUser);
 
-        // 워크스페이스 멤버 여부 확인
-        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+        // 멤버 및 권한 확인
+        MemberEntity member = validateMemberInWorkspace(authUser.getId(), workspaceId);
 
         // 읽기 전용 멤버는 보드를 삭제할 수 없음
         validatePermission(member);
 
         // BoardEntity 찾기
-        BoardEntity board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+        BoardEntity board = findBoardById(boardId);
 
         // board 삭제 (연관된 리스트와 카드도 함께 삭제됨)
         boardRepository.delete(board);
@@ -141,15 +110,13 @@ public class BoardService {
     @Transactional
     public BoardResponse getBoard(Long boardId, Long workspaceId, CustomUserDetails authUser) {
         // User 인증
-        UserEntity user = UserEntity.fromAuthUser(authUser);
+        UserEntity.fromAuthUser(authUser);
 
         // 워크스페이스 멤버 여부 확인
-        memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+        validateMemberInWorkspace(authUser.getId(), workspaceId);
 
         // 보드 존재 여부 확인
-        BoardEntity board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+        BoardEntity board = findBoardById(boardId);
 
         // 리스트 및 카드 데이터도 함께 반환
         List<ListResponse> lists = board.getLists().stream()
@@ -177,6 +144,19 @@ public class BoardService {
         );
     }
 
+    // 멤버 확인 로직
+    private MemberEntity validateMemberInWorkspace(Long userId, Long workspaceId) {
+        return memberRepository.findByUserIdAndWorkspaceId(userId, workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+    }
+
+    // 보드 찾기 로직
+    private BoardEntity findBoardById(Long boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(404, "해당 보드를 찾을 수 없습니다."));
+    }
+
+    // 읽기 전용 멤버인지 확인 로직
     private void validatePermission(MemberEntity member) {
         if (member.getMemberRole() == MemberRole.READ_ONLY) {
             throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 보드를 생성, 수정, 삭제할 수 없습니다.");

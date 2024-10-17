@@ -8,7 +8,9 @@ import com.sparta.springtrello.domain.attachment.exception.InvalidRequestExcepti
 import com.sparta.springtrello.domain.attachment.repository.AttachmentRepository;
 import com.sparta.springtrello.domain.card.entity.CardEntity;
 import com.sparta.springtrello.domain.card.repository.CardRepository;
+import com.sparta.springtrello.domain.common.dto.UploadFileResponse;
 import com.sparta.springtrello.domain.common.exception.CustomException;
+import com.sparta.springtrello.domain.common.service.S3UploadService;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
@@ -36,10 +40,11 @@ public class AttachmentService {
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final S3UploadService s3UploadService;
 
     // 첨부파일 추가
     @Transactional
-    public List<AttachmentEntity> addAttachments(List<MultipartFile> files, Long cardId, Long workspaceId, CustomUserDetails authUser) {
+    public List<AttachmentEntity> addAttachments(List<MultipartFile> files, Long cardId, Long workspaceId, CustomUserDetails authUser) throws IOException {
         // User 인증
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
@@ -55,22 +60,23 @@ public class AttachmentService {
                 .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
 
         List<AttachmentEntity> attachments = new ArrayList<>();
-
         for (MultipartFile file : files) {
-            // 파일 형식 체크
             if (file.getContentType() == null || !isSupportedFileType(file.getContentType())) {
                 throw new FileTypeNotSupportedException("지원되지 않는 파일 형식입니다.");
             }
 
-            // 첨부파일 엔티티 생성
+            // S3에 업로드하고 file URL 얻기
+            UploadFileResponse uploadFileResponse = s3UploadService.uploadImageToS3(file);
+
+            // AttachmentEntity 생성
             AttachmentEntity attachment = new AttachmentEntity(
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    (int) file.getSize(),
-                    card
+                    uploadFileResponse.getFileName(),
+                    uploadFileResponse.getFileExtension(),
+                    uploadFileResponse.getFileSize().intValue(),
+                    card,
+                    uploadFileResponse.getFileUrl()
             );
 
-            // 첨부파일 저장
             attachments.add(attachmentRepository.save(attachment));
         }
 
@@ -132,9 +138,16 @@ public class AttachmentService {
         // 읽기 전용 멤버는 첨부파일을 생성할 수 없음
         validatePermission(member);
 
-        if (!attachmentRepository.existsById(attachmentId)) {
-            throw new AttachmentNotFoundException("해당 ID의 첨부파일이 없습니다.");
+
+        AttachmentEntity attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new AttachmentNotFoundException("해당 ID의 첨부파일이 없습니다."));
+
+        // S3에서 파일 삭제
+        if (attachment.getFilePath() != null) { // S3 URL이 존재할 때만 삭제
+            s3UploadService.deleteImageFromS3(attachment.getFilePath());
         }
+
+
         attachmentRepository.deleteById(attachmentId); // ID로 삭제
     }
 

@@ -23,17 +23,8 @@ public class BoardController {
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long workspaceId,
             @RequestBody BoardRequest boardRequest) {
-        if (authUser == null) {
-            return ResponseEntity.status(403).body(new ApiResponse<>(403, "인증되지 않은 사용자입니다.", null));
-        }
-        try {
-            // backgroundImage 는 boardRequest 내의 필드로 사용
-            BoardResponse response = boardService.createBoard(authUser, workspaceId, boardRequest);
-            return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        BoardResponse response = boardService.createBoard(authUser, workspaceId, boardRequest);
+        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
     }
 
     @PatchMapping("/{boardId}")
@@ -42,13 +33,8 @@ public class BoardController {
             @PathVariable Long workspaceId,
             @PathVariable Long boardId,
             @RequestBody BoardRequest boardRequest) {
-        try {
-            BoardResponse response = boardService.updateBoard(boardId, workspaceId, authUser, boardRequest);
-            return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        BoardResponse response = boardService.updateBoard(boardId, workspaceId, authUser, boardRequest);
+        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
     }
 
     @DeleteMapping("/{boardId}")
@@ -56,13 +42,8 @@ public class BoardController {
             @PathVariable Long boardId,
             @PathVariable Long workspaceId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
-        try {
-            boardService.deleteBoard(boardId, workspaceId, authUser);
-            return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        boardService.deleteBoard(boardId, workspaceId, authUser);
+        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
     }
 
     @GetMapping("/{boardId}")
@@ -70,13 +51,8 @@ public class BoardController {
             @PathVariable Long boardId,
             @PathVariable Long workspaceId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
-        try {
-            BoardResponse response = boardService.getBoard(boardId, workspaceId, authUser);
-            return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        BoardResponse response = boardService.getBoard(boardId, workspaceId, authUser);
+        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
     }
 }
 
