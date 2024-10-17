@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "comments")
 public class CommentEntity extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +25,6 @@ public class CommentEntity extends Timestamped {
     @JoinColumn(name = "card_id", nullable = false)
     private CardEntity card;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private MemberEntity createdBy;
-
     public CommentEntity(CommentRequest commentRequest,CardEntity card){
         this.text = commentRequest.getText();
         this.card = card;
@@ -38,6 +35,6 @@ public class CommentEntity extends Timestamped {
 
     public boolean isCreatedBy(UserEntity user) {
 
-        return this.createdBy.getId().equals(user.getId());
+        return this.getId().equals(user.getId());
     }
 }

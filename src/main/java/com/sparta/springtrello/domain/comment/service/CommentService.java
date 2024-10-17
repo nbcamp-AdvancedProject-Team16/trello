@@ -54,7 +54,7 @@ public class CommentService {
         CommentEntity comment = commentRepository.findByCardIdAndId(cardId, commentId)
                 .orElseThrow(() -> new RuntimeException("해당 카드에 댓글이 존재하지 않습니다.")); //워크스페이스멤버인지 권한 확인
 
-        //읽기 전용 역할을 가진 멤버가 카드를 삭제하려는 경우
+        //읽기 전용 역할을 가진 멤버가 카드를 수정하려는 경우
         if (!comment.isCreatedBy(user)) {
             throw new CustomException(403, "댓글을 수정할 권한이 없습니다.");
         }
