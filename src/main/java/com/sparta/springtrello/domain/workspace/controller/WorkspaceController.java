@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.workspace.controller;
 
+import com.sparta.springtrello.domain.common.response.ApiResponse;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.springtrello.domain.workspace.dto.response.WorkspaceNameResponse;
@@ -21,7 +22,7 @@ public class WorkspaceController {
     private final WorkspaceService workspaceService;
 
     @PostMapping("/admin")
-    public ResponseEntity<WorkspaceResponse> createWorkspace(
+    public ResponseEntity<ApiResponse<WorkspaceResponse>> createWorkspace(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @Valid @RequestBody WorkspaceRequest workspaceRequest
     ){
@@ -29,19 +30,19 @@ public class WorkspaceController {
                 authUser,
                 workspaceRequest
         );
-        return ResponseEntity.ok(workspaceResponse);
+        return ResponseEntity.ok(new ApiResponse<>(201, "보드가 성공적으로 수정되었습니다.", workspaceResponse));
     }
 
     @GetMapping
-    public ResponseEntity<List<WorkspaceNameResponse>> getWorkspaces(
+    public ResponseEntity<ApiResponse<List<WorkspaceNameResponse>>> getWorkspaces(
             @AuthenticationPrincipal CustomUserDetails authUser
     ){
         List<WorkspaceNameResponse> workspaceNameResponses = workspaceService.getWorkspaces(authUser);
-        return ResponseEntity.ok(workspaceNameResponses);
+        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 조회되었습니다.", workspaceNameResponses));
     }
 
     @PatchMapping("/{workspaceId}")
-    public ResponseEntity<WorkspaceResponse> updateWorkspace(
+    public ResponseEntity<ApiResponse<WorkspaceResponse>> updateWorkspace(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long workspaceId,
             @Valid @RequestBody WorkspaceRequest workspaceRequest
@@ -51,15 +52,15 @@ public class WorkspaceController {
                 workspaceId,
                 workspaceRequest
         );
-        return ResponseEntity.ok(workspaceResponse);
+        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 수정되었습니다.", workspaceResponse));
     }
 
     @DeleteMapping("/{workspaceId}")
-    public ResponseEntity<Void> deleteWorkspace(
+    public ResponseEntity<ApiResponse<Void>> deleteWorkspace(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long workspaceId
     ) {
         workspaceService.deleteWorkspace(authUser, workspaceId);
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
     }
 }
