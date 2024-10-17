@@ -24,12 +24,12 @@ public class CommentService {
     private final CardRepository cardRepository;
     private final MemberRepository memberRepository;
 
-    //워크스페이스 멤버인지아닌지 체크 ->readonly
+    //워크스페이스 멤버인지아닌지 체크 -> readonly
     @Transactional
     public CommentResponse createComment(CustomUserDetails authUser,Long cardId, CommentRequest commentRequest) {
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new RuntimeException("카드를 찾을 수 없습니다."));
+        CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new CustomException(404, "카드를 찾을 수 없습니다."));
 
         MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), card.getList().getBoard().getWorkspace().getId())
                 .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
@@ -52,7 +52,7 @@ public class CommentService {
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
         CommentEntity comment = commentRepository.findByCardIdAndId(cardId, commentId)
-                .orElseThrow(() -> new RuntimeException("해당 카드에 댓글이 존재하지 않습니다.")); //워크스페이스멤버인지 권한 확인
+                .orElseThrow(() -> new CustomException(404, "해당 카드에 댓글이 존재하지 않습니다.")); //워크스페이스멤버인지 권한 확인
 
         //읽기 전용 역할을 가진 멤버가 카드를 수정하려는 경우
         if (!comment.isCreatedBy(user)) {
@@ -75,7 +75,7 @@ public class CommentService {
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
         CommentEntity comment = commentRepository.findByCardIdAndId(cardId, commentId)
-                .orElseThrow(() -> new RuntimeException("해당 카드에 댓글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 카드에 댓글이 존재하지 않습니다."));
 
         //읽기 전용 역할을 가진 멤버가 카드를 삭제하려는 경우
         if (!comment.isCreatedBy(user)) {

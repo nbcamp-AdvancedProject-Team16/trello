@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.user.service;
 
+import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.exception.InvalidRequestException;
 import com.sparta.springtrello.domain.user.dto.request.UserRoleChangeRequest;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
@@ -16,7 +17,7 @@ public class UserAdminService {
 
     @Transactional
     public void changeUserRole(long userId, UserRoleChangeRequest userRoleChangeRequest) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(404, "유저를 찾을 수 없습니다."));
         user.updateRole(UserRole.of(userRoleChangeRequest.getRole()));
     }
 }

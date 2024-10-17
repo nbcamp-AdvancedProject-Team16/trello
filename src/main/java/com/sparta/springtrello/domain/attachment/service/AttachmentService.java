@@ -16,7 +16,6 @@ import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
-import com.sparta.springtrello.domain.user.repository.UserRepository;
 import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
 import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,6 @@ public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
     private final CardRepository cardRepository;
-    private final UserRepository userRepository;
     private final MemberRepository memberRepository;
     private final WorkspaceRepository workspaceRepository;
     private final S3UploadService s3UploadService;
@@ -50,19 +48,19 @@ public class AttachmentService {
 
         // 멤버 여부 확인
         MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+                .orElseThrow(() -> new CustomException(400, "해당 워크스페이스에 가입된 멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 첨부파일을 생성할 수 없음
         validatePermission(member);
 
         // 카드 존재 여부 체크
         CardEntity card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "카드를 찾을 수 없습니다."));
 
         List<AttachmentEntity> attachments = new ArrayList<>();
         for (MultipartFile file : files) {
             if (file.getContentType() == null || !isSupportedFileType(file.getContentType())) {
-                throw new FileTypeNotSupportedException("지원되지 않는 파일 형식입니다.");
+                throw new CustomException(400, "지원되지 않는 파일 형식입니다.");
             }
 
             // S3에 업로드하고 file URL 얻기
@@ -97,22 +95,22 @@ public class AttachmentService {
         } else {
             // 워크스페이스 소유자 확인
             WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
-                    .orElseThrow(() -> new IllegalArgumentException("워크스페이스를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new CustomException(404, "워크스페이스를 찾을 수 없습니다."));
 
             // 워크스페이스 소유자인지 확인
             if (workspace.getCreatedBy() != user.getId()) {
-                throw new IllegalArgumentException("해당 워크스페이스를 생성한 사용자가 아닙니다.");
+                throw new CustomException(400, "해당 워크스페이스를 생성한 사용자가 아닙니다.");
             }
         }
 
 
         List<AttachmentEntity> attachments = attachmentRepository.findByCard_Id(cardId);
         if (attachments.isEmpty()) {
-            throw new AttachmentNotFoundException("해당 카드 ID에 대한 첨부파일이 없습니다.");
+            throw new CustomException(404, "해당 카드 ID에 대한 첨부파일이 없습니다.");
         }
         
         CardEntity card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "카드를 찾을 수 없습니다."));
 
         return attachments.stream()
                 .map(attachment -> new AttachmentRequest(
@@ -133,17 +131,17 @@ public class AttachmentService {
 
         // 멤버 여부 확인
         MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+                .orElseThrow(() -> new CustomException(400, "해당 워크스페이스에 가입된 멤버가 아닙니다."));
 
         // 읽기 전용 멤버는 첨부파일을 생성할 수 없음
         validatePermission(member);
 
 
         AttachmentEntity attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new AttachmentNotFoundException("해당 ID의 첨부파일이 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 ID의 첨부파일이 없습니다."));
 
         // S3에서 파일 삭제
-        if (attachment.getFilePath() != null) { // S3 URL이 존재할 때만 삭제
+        if (attachment.getFilePath() != null) { // S3 URL 이 존재할 때만 삭제
             s3UploadService.deleteImageFromS3(attachment.getFilePath());
         }
 
