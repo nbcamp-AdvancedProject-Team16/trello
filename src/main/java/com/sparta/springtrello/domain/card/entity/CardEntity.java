@@ -36,9 +36,9 @@ public class CardEntity extends Timestamped {
     @JoinColumn(name = "list_id",nullable = false)
     private ListEntity list;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private MemberEntity createdBy;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "created_by")
+//    private MemberEntity writer;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AssigneeEntity> assigneeEntityList;
@@ -46,10 +46,11 @@ public class CardEntity extends Timestamped {
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> commentEntityList;
 
-    public CardEntity(CardRequest cardRequest){
+    public CardEntity(CardRequest cardRequest,ListEntity list){
         this.title = cardRequest.getTitle();
         this.description = cardRequest.getDescription();
         this.dueDate = cardRequest.getDueDate();
+        this.list = list;
     }
 
     public void listConnect(ListEntity list) {
