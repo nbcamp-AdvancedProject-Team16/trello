@@ -1,7 +1,5 @@
 package com.sparta.springtrello.domain.workspace.dto.response;
 
-import com.sparta.springtrello.domain.member.entity.MemberEntity;
-import com.sparta.springtrello.domain.user.entity.UserEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
