@@ -18,30 +18,30 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping("/{listId}/cards")
-    public ResponseEntity<CardResponse> createCard(@AuthenticationPrincipal CustomUserDetails authUser,@PathVariable Long listId, @RequestBody CardRequest cardRequest) {
-       CardResponse response = cardService.createCard(authUser,listId,cardRequest);
+    public ResponseEntity<CardResponse> createCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long listId, @RequestBody CardRequest cardRequest) {
+       CardResponse response = cardService.createCard(authUser, listId, cardRequest);
 
        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<CardResponse> getCard(@AuthenticationPrincipal CustomUserDetails authUser,@PathVariable Long cardId) {
+    public ResponseEntity<CardResponse> getCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long cardId) {
 
-        CardResponse response = cardService.getCard(authUser,cardId);
+        CardResponse response = cardService.getCard(authUser, cardId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PatchMapping("/{listId}/cards/{cardId}")
-    public ResponseEntity<CardResponse> updateCard(@AuthenticationPrincipal CustomUserDetails authUser,@PathVariable Long listId, @PathVariable Long cardId, @RequestBody CardRequest cardRequest) {
-        CardResponse response = cardService.updateCard(authUser,listId,cardId,cardRequest);
+    public ResponseEntity<CardResponse> updateCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long listId, @PathVariable Long cardId, @RequestBody CardRequest cardRequest) {
+        CardResponse response = cardService.updateCard(authUser, listId, cardId, cardRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{listId}/cards/{cardId}")
-    public ResponseEntity<Void> deleteCard(@AuthenticationPrincipal CustomUserDetails authUser,@PathVariable Long listId, @PathVariable Long cardId) {
-        cardService.deleteCard(authUser,listId,cardId);
+    public ResponseEntity<Void> deleteCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long listId, @PathVariable Long cardId) {
+        cardService.deleteCard(authUser, listId, cardId);
 
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
