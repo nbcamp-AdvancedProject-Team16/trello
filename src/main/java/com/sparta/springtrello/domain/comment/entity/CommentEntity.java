@@ -4,6 +4,7 @@ import com.sparta.springtrello.domain.card.entity.CardEntity;
 import com.sparta.springtrello.domain.comment.dto.CommentRequest;
 import com.sparta.springtrello.domain.common.entity.Timestamped;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,5 +34,10 @@ public class CommentEntity extends Timestamped {
     }
     public void update(CommentRequest commentRequest) {
         this.text = commentRequest.getText();
+    }
+
+    public boolean isCreatedBy(UserEntity user) {
+
+        return this.createdBy.getId().equals(user.getId());
     }
 }
