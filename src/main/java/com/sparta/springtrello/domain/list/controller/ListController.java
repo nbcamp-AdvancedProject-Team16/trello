@@ -23,13 +23,8 @@ public class ListController {
             @PathVariable Long boardId,
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody ListRequest listRequest) {
-        try {
-            ListResponse response = listService.createList(boardId, authUser, listRequest);
-            return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        ListResponse response = listService.createList(boardId, authUser, listRequest);
+        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
     }
 
     @PatchMapping("/{listId}")
@@ -38,13 +33,8 @@ public class ListController {
             @PathVariable Long listId,
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody ListRequest listRequest) {
-        try {
-            ListResponse response = listService.updateList(boardId, listId, authUser, listRequest);
-            return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        ListResponse response = listService.updateList(boardId, listId, authUser, listRequest);
+        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
     }
 
     @DeleteMapping("/{listId}")
@@ -52,12 +42,7 @@ public class ListController {
             @PathVariable Long boardId,
             @PathVariable Long listId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
-        try {
-            listService.deleteList(boardId, listId, authUser);
-            return ResponseEntity.ok(new ApiResponse<>(200, "리스트가 성공적으로 삭제되었습니다.", null));
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getStatus())
-                    .body(new ApiResponse<>(e.getStatus(), e.getMessage(), null));
-        }
+        listService.deleteList(boardId, listId, authUser);
+        return ResponseEntity.ok(new ApiResponse<>(200, "리스트가 성공적으로 삭제되었습니다.", null));
     }
 }
