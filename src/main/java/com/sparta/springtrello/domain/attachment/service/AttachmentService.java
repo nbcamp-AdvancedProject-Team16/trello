@@ -14,6 +14,7 @@ import com.sparta.springtrello.domain.common.service.S3UploadService;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.enums.MemberRole;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
@@ -27,10 +28,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
@@ -38,6 +39,7 @@ public class AttachmentService {
     private final MemberRepository memberRepository;
     private final WorkspaceRepository workspaceRepository;
     private final S3UploadService s3UploadService;
+    private final NotificationService notificationService;
 
     // 첨부파일 추가
     @Transactional
@@ -73,6 +75,12 @@ public class AttachmentService {
                     card,
                     uploadFileResponse.getFileUrl()
             );
+
+            // 슬랙 알림 전송
+            String message = String.format("%s님이 카드[%s]에 첨부파일을 생성했습니다: %s", user.getEmail(), card.getTitle(), attachment.getFileName());
+
+            // 알림 생성
+            notificationService.createNotification(message, "attachment");
 
             attachments.add(attachmentRepository.save(attachment));
         }
@@ -111,6 +119,17 @@ public class AttachmentService {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
 
+        // 슬랙 알림 전송
+        String attachmentNames = attachments.stream()
+                .map(AttachmentEntity::getFileName)
+                .collect(Collectors.joining(", "));
+
+        String message = String.format("%s님이 카드[%s]의 첨부파일을 조회했습니다: %s", user.getEmail(), card.getTitle(), attachmentNames);
+
+        // 알림 생성
+        notificationService.createNotification(message, "attachment");
+
+
         return attachments.stream()
                 .map(attachment -> new AttachmentRequest(
                         attachment.getId(),
@@ -140,6 +159,17 @@ public class AttachmentService {
             s3UploadService.deleteImageFromS3(attachment.getFilePath());
         }
 
+        // 카드 정보 조회
+        CardEntity card = attachment.getCard();
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 카드[%s]의 첨부파일[%s]을 삭제했습니다.",
+                user.getEmail(),
+                card.getTitle(),
+                attachment.getFileName());
+
+        // 알림 생성
+        notificationService.createNotification(message, "attachment");
 
         attachmentRepository.deleteById(attachmentId); // ID로 삭제
     }

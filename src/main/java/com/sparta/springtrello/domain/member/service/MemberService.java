@@ -6,6 +6,7 @@ import com.sparta.springtrello.domain.member.dto.request.MemberRoleSaveRequest;
 import com.sparta.springtrello.domain.member.dto.response.MemberResponse;
 import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.repository.UserRepository;
 import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
@@ -21,6 +22,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public MemberResponse addMember(Long userId, Long workspaceId, MemberRoleSaveRequest memberRoleSaveRequest) {
@@ -34,6 +36,13 @@ public class MemberService {
         MemberEntity savedMember = memberRepository.save(newMember);
 
         workspace.getMembers().add(savedMember);
+
+        // 슬랙 알림 전송
+        String message = String.format("워크스페이스[%s]에 유저[%s]를 멤버로 추가했습니다. : %s",
+                workspace.getName(),
+                user.getUsername(),
+                memberRoleSaveRequest.getMemberRole());
+        notificationService.createNotification(message, "member");
 
         return new MemberResponse(savedMember.getId(), user.getId(), savedMember.getMemberRole());
     }
@@ -55,6 +64,13 @@ public class MemberService {
         }
 
         member.changeRole(memberRoleChangeRequest.getMemberRole());
+
+        // 슬랙 알림 전송
+        String message = String.format("워크스페이스[%s]에서 멤버[%s]의 역할을 %s로 변경했습니다.",
+                workspaceId,
+                member.getUser().getUsername(),
+                member.getMemberRole());
+        notificationService.createNotification(message,  "member");
 
         return new MemberResponse(member.getId(), member.getUser().getId(), member.getMemberRole());
     }

@@ -7,6 +7,7 @@ import com.sparta.springtrello.domain.auth.dto.response.SigninResponse;
 import com.sparta.springtrello.domain.auth.dto.response.SignupResponse;
 import com.sparta.springtrello.domain.auth.exception.AuthException;
 import com.sparta.springtrello.domain.common.exception.InvalidRequestException;
+import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.enums.UserRole;
 import com.sparta.springtrello.domain.user.repository.UserRepository;
@@ -17,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final NotificationService notificationService;
 
     @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
@@ -44,6 +45,11 @@ public class AuthService {
 
         String bearerToken = jwtUtil.createToken(savedUser.getId(), savedUser.getEmail(), userRole);
 
+        // 슬랙 알림 전송
+// 슬랙 알림 전송
+        String message = String.format("%s님이 회원가입했습니다. 이메일: %s", savedUser.getUsername(), savedUser.getEmail());
+        notificationService.createNotification(message, "auth"); // workspaceId를 null로 설정
+
         return new SignupResponse(bearerToken);
     }
 
@@ -57,6 +63,10 @@ public class AuthService {
         }
 
         String bearerToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
+
+        // 슬랙 알림 전송
+        String message = String.format("%s님이 로그인했습니다. 이메일: %s", user.getUsername(), user.getEmail());
+        notificationService.createNotification(message, "auth"); // 알림 생성
 
         return new SigninResponse(bearerToken);
     }
