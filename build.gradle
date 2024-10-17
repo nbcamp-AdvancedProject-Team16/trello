@@ -63,6 +63,12 @@ dependencies {
 
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // Web Socket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 tasks.named('test') {

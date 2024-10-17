@@ -6,6 +6,7 @@ import com.sparta.springtrello.domain.auth.dto.request.SignupRequest;
 import com.sparta.springtrello.domain.auth.dto.response.SigninResponse;
 import com.sparta.springtrello.domain.auth.dto.response.SignupResponse;
 import com.sparta.springtrello.domain.auth.exception.AuthException;
+import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.exception.InvalidRequestException;
 import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
@@ -28,7 +29,7 @@ public class AuthService {
     public SignupResponse signup(SignupRequest signupRequest) {
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new InvalidRequestException("이미 존재하는 이메일입니다.");
+            throw new CustomException(400, "이미 존재하는 이메일입니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
@@ -55,11 +56,11 @@ public class AuthService {
 
     public SigninResponse signin(SigninRequest signinRequest) {
         UserEntity user = userRepository.findByEmail(signinRequest.getEmail()).orElseThrow(
-                () -> new InvalidRequestException("가입되지 않은 유저입니다."));
+                () -> new CustomException(403, "가입되지 않은 유저입니다."));
 
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401을 반환합니다.
         if (!passwordEncoder.matches(signinRequest.getPassword(), user.getPassword())) {
-            throw new AuthException("잘못된 비밀번호입니다.");
+            throw new CustomException(400, "잘못된 비밀번호입니다.");
         }
 
         String bearerToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());

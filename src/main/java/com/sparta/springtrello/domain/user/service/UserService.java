@@ -1,5 +1,6 @@
 package com.sparta.springtrello.domain.user.service;
 
+import com.sparta.springtrello.domain.common.exception.CustomException;
 import com.sparta.springtrello.domain.common.exception.InvalidRequestException;
 import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.dto.request.UserChangePasswordRequest;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -24,7 +26,7 @@ public class UserService {
 
 
     public UserResponse getUser(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(404, "유저를 찾을 수 없습니다."));
 
         // 비밀번호 변경 후 슬랙 알림 전송
         String message = String.format("%s님의 정보를 조회했습니다.", user.getEmail());
@@ -41,14 +43,14 @@ public class UserService {
         validateNewPassword(userChangePasswordRequest);
 
         UserEntity user = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new InvalidRequestException("User not found"));
+                .orElseThrow(() -> new CustomException(404, "유저를 찾을 수 없습니다."));
 
         if (passwordEncoder.matches(userChangePasswordRequest.getNewPassword(), user.getPassword())) {
-            throw new InvalidRequestException("새 비밀번호는 기존 비밀번호와 같을 수 없습니다.");
+            throw new CustomException(403, "새 비밀번호는 기존 비밀번호와 같을 수 없습니다.");
         }
 
         if (!passwordEncoder.matches(userChangePasswordRequest.getOldPassword(), user.getPassword())) {
-            throw new InvalidRequestException("잘못된 비밀번호입니다.");
+            throw new CustomException(400, "잘못된 비밀번호입니다.");
         }
 
         // 비밀번호 변경 후 슬랙 알림 전송
@@ -64,7 +66,7 @@ public class UserService {
         if (userChangePasswordRequest.getNewPassword().length() < 8 ||
                 !userChangePasswordRequest.getNewPassword().matches(".*\\d.*") ||
                 !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
-            throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
+            throw new CustomException(400, "새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
         }
     }
 
@@ -73,11 +75,11 @@ public class UserService {
         UserEntity.fromAuthUser(authUser);
         // 1. 유저 존재 여부 확인
         UserEntity user = userRepository.findById(authUser.getId())
-                .orElseThrow(() -> new InvalidRequestException("User not found"));
+                .orElseThrow(() -> new CustomException(404, "유저를 찾을 수 없습니다."));
 
         // 2. 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(userDeleteRequest.getPassword(), user.getPassword())) {
-            throw new InvalidRequestException("잘못된 비밀번호입니다.");
+            throw new CustomException(400, "잘못된 비밀번호입니다.");
         }
 
         // 사용자 삭제 후 슬랙 알림 전송

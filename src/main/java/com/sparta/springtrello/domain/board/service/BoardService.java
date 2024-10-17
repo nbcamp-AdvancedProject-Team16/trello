@@ -166,7 +166,7 @@ public class BoardService {
     // 멤버 확인 로직
     private MemberEntity validateMemberInWorkspace(Long userId, Long workspaceId) {
         return memberRepository.findByUserIdAndWorkspaceId(userId, workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+                .orElseThrow(() -> new CustomException(400, "해당 워크스페이스에 가입된 멤버가 아닙니다."));
     }
 
     // 보드 찾기 로직
