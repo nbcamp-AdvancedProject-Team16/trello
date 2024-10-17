@@ -47,14 +47,14 @@ public class AttachmentService {
 
         // 워크스페이스 존재 여부 확인
         WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("워크스페이스를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "워크스페이스를 찾을 수 없습니다."));
 
         // 권한 확인
         checkUserPermission(user, workspaceId);
 
         // 카드 존재 여부 체크
         CardEntity card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "카드를 찾을 수 없습니다."));
 
         List<AttachmentEntity> attachments = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -87,7 +87,7 @@ public class AttachmentService {
 
         // 워크스페이스 존재 여부 확인
         WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new IllegalArgumentException("워크스페이스를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "워크스페이스를 찾을 수 없습니다."));
 
         // 멤버 여부 확인
         Optional<MemberEntity> memberOpt = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId);
@@ -98,7 +98,7 @@ public class AttachmentService {
         } else {
             // 워크스페이스 소유자 확인
             if (workspace.getCreatedBy() != user.getId()) {
-                throw new IllegalArgumentException("해당 워크스페이스를 생성한 사용자가 아니거나 멤버가 아닙니다.");
+                throw new CustomException(400, "해당 워크스페이스를 생성한 사용자가 아니거나 멤버가 아닙니다.");
             }
         }
 
@@ -109,7 +109,7 @@ public class AttachmentService {
         }
 
         CardEntity card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "카드를 찾을 수 없습니다."));
 
         return attachments.stream()
                 .map(attachment -> new AttachmentRequest(
@@ -164,13 +164,13 @@ public class AttachmentService {
         if (memberOpt.isPresent()) {
             MemberEntity member = memberOpt.get();
             if (member.getMemberRole() == MemberRole.READ_ONLY) {
-                throw new IllegalArgumentException("읽기 전용 역할을 가진 멤버는 첨부파일을 생성할 수 없습니다.");
+                throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 첨부파일을 생성할 수 없습니다.");
             }
         } else {
             WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
                     .orElseThrow(() -> new IllegalArgumentException("워크스페이스를 찾을 수 없습니다."));
             if (workspace.getCreatedBy() != user.getId()) {
-                throw new IllegalArgumentException("해당 워크스페이스를 생성한 사용자가 아니거나 멤버가 아닙니다.");
+                throw new CustomException(403, "해당 워크스페이스를 생성한 사용자가 아니거나 멤버가 아닙니다.");
             }
         }
     }

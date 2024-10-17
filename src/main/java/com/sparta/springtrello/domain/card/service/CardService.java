@@ -41,7 +41,7 @@ public class CardService {
 
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new RuntimeException("리스트 ID를 찾을 수 없습니다."));
+        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new CustomException(404, "리스트 ID를 찾을 수 없습니다."));
 
         MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), list.getBoard().getWorkspace().getId())
                 .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
@@ -61,7 +61,7 @@ public class CardService {
     public CardResponse getCard(CustomUserDetails authUser,Long cardId) {
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new RuntimeException("카드가 존재하지 않습니다."));
+        CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new CustomException(404, "카드가 존재하지 않습니다."));
 
         Long workspaceId = card.getList().getBoard().getWorkspace().getId();
 
@@ -84,7 +84,7 @@ public class CardService {
 
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new RuntimeException("리스트 ID를 찾을 수 없습니다."));
+        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new CustomException(404, "리스트 ID를 찾을 수 없습니다."));
 
         CardEntity card = cardRepository.findByListIdAndId(listId,cardId)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
@@ -106,10 +106,10 @@ public class CardService {
 
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
-        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new RuntimeException("리스트 ID를 찾을 수 없습니다."));
+        ListEntity list = listRepository.findById(listId).orElseThrow(()-> new CustomException(404, "리스트 ID를 찾을 수 없습니다."));
 
         CardEntity card = cardRepository.findByListIdAndId(listId,cardId)
-                .orElseThrow(() -> new RuntimeException("Card not found"));
+                .orElseThrow(() -> new CustomException(404, "해당 카드를 찾을 수 없습니다."));
 
         MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), list.getBoard().getWorkspace().getId())
                 .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
