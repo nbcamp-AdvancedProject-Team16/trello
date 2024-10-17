@@ -28,9 +28,6 @@ public class NotificationEntity extends Timestamped{
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceEntity workspace;
 
-    @Column(name = "is_read", nullable = false)
-    private boolean isRead;
-
     @Column(name = "type", nullable = false)
     private String type; // 예: "comment", "member_add" 등
 
@@ -41,14 +38,6 @@ public class NotificationEntity extends Timestamped{
         notification.user = user;
         notification.workspace = workspace;
         notification.type = type;
-        notification.isRead = false; // 기본값 설정
         return notification;
     }
-
-    // 새로운 메서드
-    public NotificationEntity markAsRead() {
-        this.isRead = true; // isRead 값을 true로 설정
-        return this;
-    }
-
 }
