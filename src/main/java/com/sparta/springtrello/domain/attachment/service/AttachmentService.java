@@ -8,8 +8,15 @@ import com.sparta.springtrello.domain.attachment.exception.InvalidRequestExcepti
 import com.sparta.springtrello.domain.attachment.repository.AttachmentRepository;
 import com.sparta.springtrello.domain.card.entity.CardEntity;
 import com.sparta.springtrello.domain.card.repository.CardRepository;
+import com.sparta.springtrello.domain.common.exception.CustomException;
+import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.member.enums.MemberRole;
+import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
 import com.sparta.springtrello.domain.user.repository.UserRepository;
+import com.sparta.springtrello.domain.workspace.entity.WorkspaceEntity;
+import com.sparta.springtrello.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,16 +34,21 @@ public class AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
+    private final WorkspaceRepository workspaceRepository;
 
     // 첨부파일 추가
     @Transactional
-    public List<AttachmentEntity> addAttachments(List<MultipartFile> files, Long cardId) {
-        // 현재 인증된 사용자 확인 (필요한 경우 주석 해제)
-        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // if (authentication != null && authentication.getAuthorities().stream()
-        //         .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_READ_ONLY"))) {
-        //     throw new ReadOnlyUserException("읽기 전용 사용자로서 첨부파일을 추가할 수 없습니다.");
-        // }
+    public List<AttachmentEntity> addAttachments(List<MultipartFile> files, Long cardId, Long workspaceId, CustomUserDetails authUser) {
+        // User 인증
+        UserEntity user = UserEntity.fromAuthUser(authUser);
+
+        // 멤버 여부 확인
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 첨부파일을 생성할 수 없음
+        validatePermission(member);
 
         // 카드 존재 여부 체크
         CardEntity card = cardRepository.findById(cardId)
@@ -65,16 +78,32 @@ public class AttachmentService {
     }
 
     // 카드에 대한 첨부파일 조회
-    public List<AttachmentRequest> getAttachmentsByCardId(Long cardId) {
+    public List<AttachmentRequest> getAttachmentsByCardId(Long cardId, Long workspaceId, CustomUserDetails authUser) {
+        // User 인증
+        UserEntity user = UserEntity.fromAuthUser(authUser);
+
+        // 멤버 여부 확인
+        Optional<MemberEntity> memberOpt = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId);
+
+        // 멤버인 경우
+        if (memberOpt.isPresent()) {
+            // 모든 멤버는 첨부파일을 조회할 수 있음
+        } else {
+            // 워크스페이스 소유자 확인
+            WorkspaceEntity workspace = workspaceRepository.findById(workspaceId)
+                    .orElseThrow(() -> new IllegalArgumentException("워크스페이스를 찾을 수 없습니다."));
+
+            // 워크스페이스 소유자인지 확인
+            if (workspace.getCreatedBy() != user.getId()) {
+                throw new IllegalArgumentException("해당 워크스페이스를 생성한 사용자가 아닙니다.");
+            }
+        }
+
+
         List<AttachmentEntity> attachments = attachmentRepository.findByCard_Id(cardId);
         if (attachments.isEmpty()) {
             throw new AttachmentNotFoundException("해당 카드 ID에 대한 첨부파일이 없습니다.");
         }
-
-        // 임의의 사용자 찾기 (예: 첫 번째 사용자)
-        UserEntity user = userRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new InvalidRequestException("사용자를 찾을 수 없습니다."));
         
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new InvalidRequestException("카드를 찾을 수 없습니다."));
@@ -91,13 +120,17 @@ public class AttachmentService {
     }
 
     // 첨부파일 삭제
-    public void deleteAttachment(Long attachmentId) {
-//        // 현재 인증된 사용자 확인
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null && authentication.getAuthorities().stream()
-//                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_READ_ONLY"))) {
-//            throw new ReadOnlyUserException("읽기 전용 사용자로서 첨부파일을 삭제할 수 없습니다.");
-//        }
+    @Transactional
+    public void deleteAttachment(Long attachmentId, Long workspaceId, CustomUserDetails authUser) {
+        // User 인증
+        UserEntity user = UserEntity.fromAuthUser(authUser);
+
+        // 멤버 여부 확인
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 워크스페이스에 가입된 멤버가 아닙니다."));
+
+        // 읽기 전용 멤버는 첨부파일을 생성할 수 없음
+        validatePermission(member);
 
         if (!attachmentRepository.existsById(attachmentId)) {
             throw new AttachmentNotFoundException("해당 ID의 첨부파일이 없습니다.");
@@ -109,5 +142,12 @@ public class AttachmentService {
     private boolean isSupportedFileType(String fileType) {
         return "image/jpeg".equals(fileType) || "image/png".equals(fileType) ||
                 "application/pdf".equals(fileType) || "text/csv".equals(fileType);
+    }
+
+    // 멤버의 권한 확인
+    private void validatePermission(MemberEntity member) {
+        if (member.getMemberRole() == MemberRole.READ_ONLY) {
+            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 첨부파일을 생성, 삭제할 수 없습니다.");
+        }
     }
 }
