@@ -54,8 +54,174 @@ Communication<p>
 
 
 
-## :green_book: API 명세함
+## :green_book: API 명세서
 
+<details>
+  <summary><strong>4. 보드 생성 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: `/workspaces/{workspaceId}/boards`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "title": "프로젝트 관리 보드",
+    "backgroundColor": "#FF5733",
+    "backgroundImageUrl": "https://s3.amazonaws.com/mybucket/image.jpg"
+  }
+- **Response success**
+  ```json
+  {
+    "status": 201,
+    "message": "정상처리되었습니다.",
+    "data": {
+      "boardId": 1,
+      "title": "프로젝트 관리 보드",
+      "backgroundColor": "#FF5733",
+      "backgroundImageUrl": null,  // 백그라운드 컬러가 설정되면 이미지 URL은 null
+      "createdAt": "2024-10-14T10:15:30Z",
+      "updatedAt": "2024-10-14T10:15:30Z"
+      }
+  }
+  {
+    "status": 201,
+    "message": "정상처리되었습니다.",
+    "data": {
+      "boardId": 1,
+      "title": "프로젝트 관리 보드",
+      "backgroundColor": null, // 이미지 URL이 설정되면 백그라운드 컬러는 null
+      "backgroundImageUrl": "https://s3.amazonaws.com/mybucket/image.jpg",
+      "createdAt": "2024-10-14T10:15:30Z",
+      "updatedAt": "2024-10-14T10:15:30Z"
+    }
+  }
+- **Response fail**
+  ```json
+  {
+    "status": 401,
+    "message": "로그인이 필요합니다.",
+    "data": null
+  }
+  {
+    "status": 400,
+    "message": "제목이 비어 있습니다.",
+    "data": null
+  }
+  {
+    "status": 403,
+    "message": "읽기 전용 역할을 가진 멤버는 보드를 삭제할 수 없습니다.",
+    "data": null
+  }
+
+- **Method**: `PATCH`
+- **URL**: `/workspaces/{workspaceId}/boards/{boardId}`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "title": "새 프로젝트 관리 보드",
+    "backgroundColor": "#00FF00",
+    "backgroundImageUrl": "https://s3.amazonaws.com/mybucket/newimage.jpg"
+  }
+- **Response success**
+  ```json
+  {
+    "status": 200,
+    "message": "정상처리되었습니다.",
+    "data": {
+      "boardId": 1,
+      "title": "새 프로젝트 관리 보드",
+      "backgroundColor": "#00FF00",
+      "backgroundImageUrl": "https://s3.amazonaws.com/mybucket/newimage.jpg",
+      "createdAt": "2024-10-14T10:15:30Z",
+      "updatedAt": "2024-10-14T12:00:00Z"
+    }
+  }
+- **Response fail**
+  ```json
+  {
+    "status": 401,
+    "message": "로그인이 필요합니다.",
+    "data": null
+  }
+  {
+    "status": 400,
+    "message": "제목이 비어 있습니다.",
+    "data": null
+  }
+  {
+    "status": 403,
+    "message": "읽기 전용 역할을 가진 멤버는 보드를 삭제할 수 없습니다.",
+    "data": null
+  }
+
+- **Method**: `GET`
+- **URL**: `/workspaces/{workspaceId}/boards/{boardId}`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Response success**
+  ```json
+  {
+    "status": 200,
+    "message": "정상처리되었습니다.",
+    "data": {
+      "boardId": 1,
+      "title": "프로젝트 관리 보드",
+      "backgroundColor": "#FF5733",
+      "backgroundImageUrl": "https://s3.amazonaws.com/mybucket/image.jpg",
+      "lists": [
+        {
+          "listId": 1,
+          "title": "To-Do",
+          "order": 1,
+          "cards": [
+            {
+              "cardId": 1,
+              "title": "첫 번째 카드",
+              "description": "카드 설명",
+              "dueDate": "2024-10-20"
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+- **Response fail**
+  ```json
+  {
+    "status": 404,
+    "message": "보드를 찾을 수 없습니다.",
+    "data": null
+  }
+
+- **Method**: `DELETE`
+- **URL**: `/workspaces/{workspaceId}/boards/{boardId}`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Response success**
+  ```json
+  {
+    "status": 200,
+    "message": "보드가 성공적으로 삭제되었습니다.",
+    "data": null
+  }
+
+- **Response fail**
+  ```json
+  {
+    "status": 403,
+    "message": "읽기 전용 멤버는 보드를 삭제할 수 없습니다.",
+    "data": null
+  }
+
+</details>
 
 
 ## :page_facing_up: 기능 설명
