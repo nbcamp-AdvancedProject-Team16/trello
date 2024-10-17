@@ -34,11 +34,20 @@ public class BoardEntity extends Timestamped {
     @JoinColumn(name = "workspace_id", nullable = false)
     private WorkspaceEntity workspace;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private UserEntity createdBy;
-
-    // 관계 설정: Board는 여러 List를 가질 수 있음
+    // 관계 설정: Board 는 여러 List 를 가질 수 있음
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ListEntity> lists = new ArrayList<>();
+
+    public BoardEntity(String title, String backgroundColor, String backgroundImageUrl, WorkspaceEntity workspace) {
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.backgroundImageUrl = backgroundImageUrl;
+        this.workspace = workspace;
+    }
+
+    public void update(String updatedTitle, String updatedBackgroundColor, String updatedBackgroundImageUrl) {
+        this.title = updatedTitle;
+        this.backgroundColor = updatedBackgroundColor;
+        this.backgroundImageUrl = updatedBackgroundImageUrl;
+    }
 }
