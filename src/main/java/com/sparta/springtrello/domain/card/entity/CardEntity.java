@@ -16,7 +16,10 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "cards")
+@Table(name = "cards", indexes ={
+        @Index(name = "idx_title", columnList = "title"),
+        @Index(name = "idx_dueDate", columnList = "due_date")
+})
 public class CardEntity extends Timestamped {
 
     @Id
