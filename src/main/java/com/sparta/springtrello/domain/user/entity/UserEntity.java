@@ -20,6 +20,9 @@ public class UserEntity extends Timestamped {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -32,7 +35,8 @@ public class UserEntity extends Timestamped {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberEntity> members = new ArrayList<>();
 
-    public UserEntity(String email, String password, UserRole userRole) {
+    public UserEntity(String username, String email, String password, UserRole userRole) {
+        this.username = username;
         this.email = email;
         this.password = password;
         this.userRole = userRole;
