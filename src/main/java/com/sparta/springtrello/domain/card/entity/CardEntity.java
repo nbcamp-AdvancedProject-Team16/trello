@@ -1,11 +1,11 @@
 package com.sparta.springtrello.domain.card.entity;
 
 import com.sparta.springtrello.domain.assignee.entity.AssigneeEntity;
+import com.sparta.springtrello.domain.attachment.entity.AttachmentEntity;
 import com.sparta.springtrello.domain.card.dto.CardRequest;
 import com.sparta.springtrello.domain.comment.entity.CommentEntity;
 import com.sparta.springtrello.domain.common.entity.Timestamped;
 import com.sparta.springtrello.domain.list.entity.ListEntity;
-import com.sparta.springtrello.domain.member.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,15 +36,14 @@ public class CardEntity extends Timestamped {
     @JoinColumn(name = "list_id",nullable = false)
     private ListEntity list;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "created_by")
-//    private MemberEntity writer;
-
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AssigneeEntity> assigneeEntityList;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> commentEntityList;
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<AttachmentEntity> attachments;// 추가된 부분
 
     public CardEntity(CardRequest cardRequest,ListEntity list){
         this.title = cardRequest.getTitle();

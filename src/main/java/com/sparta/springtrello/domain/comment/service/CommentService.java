@@ -6,8 +6,15 @@ import com.sparta.springtrello.domain.comment.dto.CommentRequest;
 import com.sparta.springtrello.domain.comment.dto.CommentResponse;
 import com.sparta.springtrello.domain.comment.entity.CommentEntity;
 import com.sparta.springtrello.domain.comment.repository.CommentRepository;
+import com.sparta.springtrello.domain.common.exception.CustomException;
+import com.sparta.springtrello.domain.member.entity.MemberEntity;
+import com.sparta.springtrello.domain.member.enums.MemberRole;
+import com.sparta.springtrello.domain.member.repository.MemberRepository;
+import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
+import com.sparta.springtrello.domain.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,10 +22,19 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final CardRepository cardRepository;
+    private final MemberRepository memberRepository;
 
+    //워크스페이스 멤버인지아닌지 체크 -> readonly
+    @Transactional
+    public CommentResponse createComment(CustomUserDetails authUser,Long cardId, CommentRequest commentRequest) {
+        UserEntity user = UserEntity.fromAuthUser(authUser);
 
-    public CommentResponse createComment(Long cardId,CommentRequest commentRequest) {
-        CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new RuntimeException("카드를 찾을 수 없습니다."));
+        CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new CustomException(404, "카드를 찾을 수 없습니다."));
+
+        MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), card.getList().getBoard().getWorkspace().getId())
+                .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
+
+        validatePermission(member);
 
         CommentEntity comment = new CommentEntity(commentRequest,card);
 
@@ -30,10 +46,18 @@ public class CommentService {
 
         return response;
     }
+    @Transactional
+    public CommentResponse updateComment(CustomUserDetails authUser,Long cardId,Long commentId, CommentRequest commentRequest) {
 
-    public CommentResponse updateComment(Long cardId,Long commentId, CommentRequest commentRequest) {
+        UserEntity user = UserEntity.fromAuthUser(authUser);
+
         CommentEntity comment = commentRepository.findByCardIdAndId(cardId, commentId)
-                .orElseThrow(() -> new RuntimeException("해당 카드에 댓글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 카드에 댓글이 존재하지 않습니다.")); //워크스페이스멤버인지 권한 확인
+
+        //읽기 전용 역할을 가진 멤버가 카드를 수정하려는 경우
+        if (!comment.isCreatedBy(user)) {
+            throw new CustomException(403, "댓글을 수정할 권한이 없습니다.");
+        }
 
         comment.update(commentRequest);
 
@@ -45,12 +69,26 @@ public class CommentService {
 
         return response;
     }
+    @Transactional
+    public void deleteComment(CustomUserDetails authUser,Long cardId,Long commentId) {
 
-    public void deleteComment(Long cardId,Long commentId) {
+        UserEntity user = UserEntity.fromAuthUser(authUser);
+
         CommentEntity comment = commentRepository.findByCardIdAndId(cardId, commentId)
-                .orElseThrow(() -> new RuntimeException("해당 카드에 댓글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 카드에 댓글이 존재하지 않습니다."));
+
+        //읽기 전용 역할을 가진 멤버가 카드를 삭제하려는 경우
+        if (!comment.isCreatedBy(user)) {
+            throw new CustomException(403, "댓글을 삭제할 권한이 없습니다.");
+        }
 
         commentRepository.delete(comment);
 
+    }
+
+    private void validatePermission(MemberEntity member) {
+        if (member.getMemberRole() == MemberRole.READ_ONLY) {
+            throw new CustomException(403, "읽기 전용 역할을 가진 멤버는 리스트를 생성, 수정, 삭제할 수 없습니다.");
+        }
     }
 }

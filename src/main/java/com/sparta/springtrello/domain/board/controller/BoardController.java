@@ -24,7 +24,7 @@ public class BoardController {
             @PathVariable Long workspaceId,
             @RequestBody BoardRequest boardRequest) {
         BoardResponse response = boardService.createBoard(authUser, workspaceId, boardRequest);
-        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
+        return ResponseEntity.ok(new ApiResponse<>(201, "보드가 성공적으로 생성되었습니다.", response));
     }
 
     @PatchMapping("/{boardId}")
@@ -34,7 +34,7 @@ public class BoardController {
             @PathVariable Long boardId,
             @RequestBody BoardRequest boardRequest) {
         BoardResponse response = boardService.updateBoard(boardId, workspaceId, authUser, boardRequest);
-        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 수정되었습니다.", response));
     }
 
     @DeleteMapping("/{boardId}")
@@ -52,7 +52,7 @@ public class BoardController {
             @PathVariable Long workspaceId,
             @AuthenticationPrincipal CustomUserDetails authUser) {
         BoardResponse response = boardService.getBoard(boardId, workspaceId, authUser);
-        return ResponseEntity.ok(new ApiResponse<>(200, "정상처리되었습니다.", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 조회되었습니다..", response));
     }
 }
 
