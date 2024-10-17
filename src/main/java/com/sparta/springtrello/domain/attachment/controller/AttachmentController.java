@@ -7,11 +7,13 @@ import com.sparta.springtrello.domain.attachment.entity.AttachmentEntity;
 import com.sparta.springtrello.domain.attachment.service.AttachmentService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,13 +28,13 @@ public class AttachmentController {
     // 첨부파일 생성
     @PostMapping("/workspace/{workspaceId}/card/{cardId}")
     public ResponseEntity<SuccessResponse> addAttachments(@RequestParam("files") List<MultipartFile> files, @PathVariable Long cardId,
-                                                          @PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails authUser) {
+                                                          @PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails authUser) throws IOException {
         List<AttachmentEntity> attachments = attachmentService.addAttachments(files, cardId, workspaceId, authUser);
         String ids = attachments.stream()
                 .map(attachment -> attachment.getId().toString())
                 .collect(Collectors.joining(", "));
 
-        return ResponseEntity.status(201)
+        return ResponseEntity.status(HttpStatus.SC_CREATED)
                 .body(new SuccessResponse(201, "첨부파일이 성공적으로 추가되었습니다. ID: " + ids));
     }
 
@@ -52,7 +54,7 @@ public class AttachmentController {
     public ResponseEntity<SuccessResponse> deleteAttachment(@PathVariable Long attachmentId, @PathVariable Long workspaceId,
                                                             @AuthenticationPrincipal CustomUserDetails authUser) {
         attachmentService.deleteAttachment(attachmentId, workspaceId, authUser);
-        return ResponseEntity.status(200) // 상태 코드를 200으로 변경
-                .body(new SuccessResponse(200, "첨부파일이 성공적으로 삭제되었습니다.")); // 메시지 포함
+        return ResponseEntity.status(HttpStatus.SC_OK)
+                .body(new SuccessResponse(200, "첨부파일이 성공적으로 삭제되었습니다."));
     }
 }
