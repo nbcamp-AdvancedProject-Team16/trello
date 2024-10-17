@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ListRepository extends JpaRepository<ListEntity, Long> {
     List<ListEntity> findByBoardAndListOrderBetween(BoardEntity board, int startOrder, int endOrder);
+
+    List<ListEntity> findByBoardAndListOrderGreaterThanEqual(BoardEntity board, int newOrder);
 }
