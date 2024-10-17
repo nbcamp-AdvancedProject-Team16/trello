@@ -27,9 +27,9 @@ public class AttachmentEntity extends Timestamped {
     @Column(name = "file_path", nullable = false)
     private String filePath;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "card_id", nullable = false)
-    private CardEntity card; // Card 엔티티와의 관계
+    private CardEntity card;
 
 
     public AttachmentEntity(String fileName, String fileType, int size, CardEntity card, String filePath) {
