@@ -576,22 +576,10 @@ Communication<p>
       "boardId": 1,
       "title": "프로젝트 관리 보드",
       "backgroundColor": "#FF5733",
-      "backgroundImageUrl": null,  // 백그라운드 컬러가 설정되면 이미지 URL은 null
-      "createdAt": "2024-10-14T10:15:30Z",
-      "updatedAt": "2024-10-14T10:15:30Z"
-      }
-  }
-  {
-    "status": 201,
-    "message": "정상처리되었습니다.",
-    "data": {
-      "boardId": 1,
-      "title": "프로젝트 관리 보드",
-      "backgroundColor": null, // 이미지 URL이 설정되면 백그라운드 컬러는 null
       "backgroundImageUrl": "https://s3.amazonaws.com/mybucket/image.jpg",
       "createdAt": "2024-10-14T10:15:30Z",
       "updatedAt": "2024-10-14T10:15:30Z"
-    }
+      }
   }
 - **Response fail**
   ```json
@@ -1070,53 +1058,90 @@ Communication<p>
   <summary><strong>8. 첨부파일 API</strong></summary>
 
 - **Method**: `POST`
-- **URL**: ``
+- **URL**: `/attachments/workspace/{workspaceId}/card/{cardId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "files": "(파일) 첨부할 파일(MultiPartFile)"
+  }
 - **Response success**
   ```json
+  {
+    "status": 201,
+    "message": "첨부파일이 성공적으로 추가되었습니다. ID: {attachmentId}"
+  }
 - **Response fail**
   ```json
-  
-  
-- **Method**: `PATCH`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
- - **Response fail**
-   ```json
+  {
+    "status": 400,
+    "message": "지원되지 않는 파일 형식입니다.",
+    "data": null
+  }
+  {
+    "status": 413,
+    "message": "파일 크기가 5MB를 초과합니다.",
+    "data": null
+  }
+  {
+    "status": 500,
+    "message": "서버 오류 발생",
+    "data": null
+  }
 
 - **Method**: `GET`
-- **URL**: ``
+- **URL**: `/attachments/workspace/{workspaceId}/card/{cardId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "attachments": [
+      {
+        "id": 1,
+        "fileName": "fileName",
+        "fileType": "fileType",
+        "fileSize": 100000,
+        "createdAt": "createdAt",
+        "updatedAt": "updatedAt"
+      }
+    ]
+  }
 - **Response fail**
   ```json
+  {
+    "status": 404,
+    "message": "해당 카드 ID에 대한 첨부파일이 없습니다.",
+    "data": null
+  }
 
 - **Method**: `DELETE`
-- **URL**: ``
+- **URL**: `/attachments/{attachmentId}/workspace/{workspaceId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+    "status": 204,
+    "message": "첨부파일이 성공적으로 삭제되었습니다."
+  }
 - **Response fail**
   ```json
+  {
+    "status": 403,
+    "message": "권한이 없습니다. 읽기 전용 역할로는 파일을 추가하거나 삭제할 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 ID의 첨부파일이 없습니다.",
+    "data": null
+  }
   
 </details>
 
