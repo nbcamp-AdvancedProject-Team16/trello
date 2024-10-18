@@ -1148,54 +1148,103 @@ Communication<p>
 <details>
   <summary><strong>9. 알림 API</strong></summary>
 
-- **Method**: `POST`
-- **URL**: ``
+- **Method**: `GET`
+- **URL**: `/notifications`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "data": [
+      {
+        "id": 1,
+        "type": "comment",
+        "message": "John Doe님이 당신의 카드에 댓글을 남겼습니다.",
+        "isRead": false,
+        "createdAt": "2024-10-14T10:15:30Z"
+      }
+    ]
+  }
 - **Response fail**
   ```json
+  {
+    "status": 400,
+    "message": "알림이 비활성화되어 있습니다.",
+    "data": null
+  }
   
-  
-- **Method**: `PATCH`
-- **URL**: ``
+- **Method**: `DELETE`
+- **URL**: `/notifications/{notificationId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "Notification deleted successfully."
+  }
  - **Response fail**
    ```json
+   {
+    "status": 404,
+    "message": "알림을 찾을 수 없습니다.",
+    "data": null
+  }
+
 
 - **Method**: `GET`
-- **URL**: ``
+- **URL**: `/notifications/settings`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
-- **Response fail**
-  ```json
+  {
+    "status": 200,
+    "data": {
+      "type": "slack",
+      "enabled": true
+    }
+  }
 
-- **Method**: `DELETE`
-- **URL**: ``
+- **Method**: `PATCH`
+- **URL**: `/notifications/settings`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "type": "slack",
+    "enabled": true
+  }
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "Notification settings updated."
+  }
 - **Response fail**
   ```json
+  {
+    "status": 400,
+    "message": "서버 오류 발생",
+    "data": null
+  }
+
+- **Method**: ``
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Response success**
+  ```json
+  {
+    "test@email.com님이 카드 1에 첨부파일을 생성했습니다: k5.png"
+  }
   
 </details>
 
