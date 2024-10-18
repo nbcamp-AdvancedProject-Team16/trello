@@ -802,6 +802,184 @@ Communication<p>
 </details>
 
 <details>
+  <summary><strong>6. 카드 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: `/lists/{listId}/cards`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "title": "",
+    "description": "",
+    "dueDate": "",
+    "assignee": [
+      {
+        "id": "",  
+        "name": "" 
+      }
+    ]
+    "attachment": ""
+  }
+- **Response success**
+  ```json
+  {
+    "status": 201,
+    "message": "카드가 생성되었습니다"
+  }
+- **Response fail**
+  ```json
+  {
+    "status": 403
+    "message": "권한이 없습니다"
+    "data": null
+  }
+  {
+    "status": 400,
+    "message": "카드 생성이 실패 했습니다."
+    "data": null
+  }
+  
+- **Method**: `PATCH`
+- **URL**: `/lists/{listId}/cards/{cardId}`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "title": "",
+    "description": "",
+    "dueDate": "",
+    "assignee": [
+        {
+          "id": "",  
+          "name": "" 
+        }
+    ]
+    "attachment": ""
+  }
+- **Response success**
+  ```json
+  {
+    "status":200,
+    "message": "카드가 수정되었습니다."
+  }
+ - **Response fail**
+   ```json
+   {
+    "status": 403,
+    "message": "권한이 없습니다",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 카드 ID를 찾을 수 없습니다.",
+    "data": null
+  }
+
+- **Method**: `GET`
+- **URL**: `/lists/{listId}/cards/{cardId}`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "title": "",
+    "description": "",
+    "dueDate": "",
+  }
+- **Response success**
+  ```json
+   {
+    "status": 200,
+    "message": "카드가 조회되었습니다.",
+    "data": {
+      "id": "",
+      "title": "",
+      "description": "",
+      "dueDate": "",
+      "listId": "",
+      "assignees": [
+          {
+            "id": "",
+            "name": ""
+          }
+        ],
+        "comments": [
+          {
+            "id": "",
+            "content": "",
+            "createdBy": "",
+            "createdAt": "",
+            "updatedAt": ""
+          },
+          {
+            "id": "",
+            "content": "",
+            "createdBy": "",
+            "createdAt": "",
+            "updatedAt": ""
+          }
+        ],
+        "attachments": [
+          {
+            "id": "",
+            "fileName": "",
+            "fileType": "",
+            "fileSize": ""
+          }
+        ],
+        "activityLogs": [
+          {
+            "id": "",
+            "action": "",
+            "performedBy": "",
+            "timestamp": ""
+          }
+        ],
+        "createdAt": "",
+        "updatedAt": ""
+      }
+  }
+- **Response fail**
+  ```json
+  {
+    "status": 404
+    "message": "해당 카드가 존재하지 않습니다."
+    "data": null
+  }
+
+- **Method**: `DELETE`
+- **URL**: `/lists/{listId}/cards/{cardId}`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Response success**
+  ```json
+  {
+    "status": 200,
+    "message": "카드가 삭제되었습니다."
+  }
+- **Response fail**
+  ```json
+  {
+    "status": 403,
+    "message": "권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 카드 ID를 찾을 수 없습니다.",
+    "data": null
+  }
+  
+</details>
+
+<details>
   <summary><strong>7. 댓글 API</strong></summary>
 
 - **Method**: `POST`
