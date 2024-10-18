@@ -1,4 +1,4 @@
-## :notebook_with_decorative_cover: Trello Project
+  ## :notebook_with_decorative_cover: Trello Project
 Spring Boot를 활용해 칸반 보드 방식으로 작업을 관리할 수 있는 협업 툴 구현
 
 ## :alarm_clock: 개발기간
@@ -419,57 +419,136 @@ Communication<p>
     "data": null
   }
 
+</details>
+   
 <details>
   <summary><strong>3. 워크스페이스 API</strong></summary>
 
 - **Method**: `POST`
-- **URL**: ``
+- **URL**: `/workspaces`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "name":"",
+    "description":""
+  }
 - **Response success**
   ```json
+  {
+   "status": 201,
+   "message": "워크스페이스가 생성되었습니다.",
+   "data" : {
+      "workspaceId":1,
+      "workspaceName": "",
+      "workspaceDescription": "",
+      "workspaceCreatedBy": "",
+      "workspaceCreatedAt": "",
+      "workspaceUpdatedAt": ""
+     }
+  }  
 - **Response fail**
   ```json
-  
-  
+  {
+    "status": 401,
+    "message": "해당 권한이 없습니다.",
+    "data": null
+  }
+ 
 - **Method**: `PATCH`
-- **URL**: ``
+- **URL**: `/workspaces/{workspaceId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "name": "",
+    "description": ""
+  }
 - **Response success**
   ```json
- - **Response fail**
+  {
+     "status": 200,
+     "message": "정상 처리되었습니다.",
+     "data": {
+        "workspaceId": 1,
+        "workspaceName": "",
+        "workspaceDescription": "",
+        "workspaceCreatedBy": "",
+        "workspaceCreatedAt": "",
+        "workspaceUpdatedAt": ""
+     }
+  }
+- **Response fail**
    ```json
+   {
+    "status": 401,
+    "message": "해당 권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 보드를 찾을 수 없습니다.",
+    "data": null
+  }
 
 - **Method**: `GET`
-- **URL**: ``
+- **URL**: `/workspaces`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+   "status": 200,
+   "message": "정상 처리되었습니다.",
+   "data": {
+         [
+            {
+               "boardId": 1,
+               "boardName": "",
+             },
+           {
+               "boardId": 2,
+               "boardName": ""
+             }
+        ]
+    }
+  }
 - **Response fail**
   ```json
+  {
+    "status": 401,
+    "message": "해당 권한이 없습니다.",
+    "data": null
+  }
 
 - **Method**: `DELETE`
-- **URL**: ``
+- **URL**: `/workspaces/{workspaceId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+     "status": 200,
+     "message": "정상 처리되었습니다."
+  }
 - **Response fail**
   ```json
+  {
+    "status": 401,
+    "message": "해당 권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 보드를 찾을 수 없습니다.",
+    "data": null
+  }
   
 </details>
 
