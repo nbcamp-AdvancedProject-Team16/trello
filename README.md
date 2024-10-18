@@ -553,7 +553,7 @@ Communication<p>
 </details>
 
 <details>
-  <summary><strong>4. 보드 생성 API</strong></summary>
+  <summary><strong>4. 보드 API</strong></summary>
 
 - **Method**: `POST`
 - **URL**: `/workspaces/{workspaceId}/boards`
@@ -723,53 +723,81 @@ Communication<p>
   <summary><strong>5. 리스트 API</strong></summary>
 
 - **Method**: `POST`
-- **URL**: ``
+- **URL**: `/boards/{boardId}/lists`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "title": "To-Do",
+    "listOrder": 1
+  }
 - **Response success**
   ```json
+  {
+    "status": 201,
+    "message": "정상처리되었습니다.",
+    "data": {
+      "listId": 1,
+      "title": "To-Do",
+      "order": 1,
+      "createdAt": "2024-10-14T10:15:30Z",
+      "updatedAt": "2024-10-14T10:15:30Z"
+    }
+  }
 - **Response fail**
   ```json
-  
+  {
+    "status": 403,
+    "message": "읽기 전용 멤버는 리스트를 생성할 수 없습니다.",
+    "data": null
+  }
   
 - **Method**: `PATCH`
-- **URL**: ``
+- **URL**: `/lists/{listId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "title": "In Progress",
+    "listOrder": 2
+  }
 - **Response success**
   ```json
+  {
+    "title": "In Progress",
+    "listOrder": 2
+  }
  - **Response fail**
    ```json
-
-- **Method**: `GET`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
-- **Response fail**
-  ```json
+   {
+    "status": 403,
+    "message": "읽기 전용 멤버는 리스트를 수정할 수 없습니다.",
+    "data": null
+  }
 
 - **Method**: `DELETE`
-- **URL**: ``
+- **URL**: `/lists/{listId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "리스트가 성공적으로 삭제되었습니다.",
+    "data": null
+  }
 - **Response fail**
   ```json
+  {
+    "status": 403,
+    "message": "읽기 전용 멤버는 리스트를 삭제할 수 없습니다.",
+    "data": null
+  }
   
 </details>
 
