@@ -60,53 +60,215 @@ Communication<p>
   <summary><strong>1. 회원가입/로그인 API</strong></summary>
 
 - **Method**: `POST`
-- **URL**: ``
+- **URL**: `/users/singup`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "email": "user@example.com",
+    "password": "Password123!",
+    "user_role": "USER"
+  }
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "회원가입이 완료되었습니다.",
+    "data": {
+      "userId": 1,
+      "email": "user@example.com",
+      "userRole": "USER",
+      "createdAt": "2024-10-14T10:15:30Z"
+    }
+  }
+  {
+    "status": 201,
+    "message": "회원가입이 완료되었습니다.",
+    "data": {
+      "userId": 1,
+      "email": "user@example.com",
+      "userRole": "USER",
+      "createdAt": "2024-10-14T10:15:30Z"
+    }
+  }
 - **Response fail**
   ```json
+  {
+    "status": 400,
+    "message": "이메일 형식이 올바르지 않습니다.",
+    "data": null
+  }
+  {
+    "status": 400,
+    "message": "비밀번호는 최소 8자 이상이어야 하며, 대소문자, 숫자, 특수문자를 포함해야 합니다.",
+    "data": null
+  }
+  {
+    "status": 409,
+    "message": "이미 존재하는 이메일입니다.",
+    "data": null
+  }
+  {
+    "status": 400,
+    "message": "회원가입에 필요한 정보가 누락되었습니다.",
+    "data": null
+  }
+  {
+    "status": 500,
+    "message": "서버 에러가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "data": null
+  }
   
-  
-- **Method**: `PATCH`
-- **URL**: ``
+- **Method**: `POST`
+- **URL**: `/users/signin`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "email": "user@example.com",
+    "password": "Password123!"
+  }
 - **Response success**
   ```json
- - **Response fail**
-   ```json
+  {
+    "status": 200,
+    "message": "로그인에 성공하였습니다.",
+    "data": {
+      "userId": 1,
+      "email": "user@example.com",
+      "userRole": "USER",
+      "token": "jwt_token_here"
+    }
+  }
+  {
+    "status": 201,
+    "message": "첫 로그인에 성공했습니다. 환영합니다!",
+    "data": {
+      "accessToken": "jwt-token",
+      "refreshToken": "refresh-jwt-token",
+      "userId": 1,
+      "userRole": "USER"
+    }
+  }
+- **Response fail**
+  ```json
+   {
+    "status": 400,
+    "message": "이메일과 비밀번호를 모두 입력해야 합니다.",
+    "data": null
+   }
+  {
+    "status": 401,
+    "message": "이메일 또는 비밀번호가 올바르지 않습니다.",
+    "data": null
+  }
+  {
+    "status": 403,
+    "message": "탈퇴한 계정으로는 로그인할 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 500,
+    "message": "서버 에러가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "data": null
+  }
 
-- **Method**: `GET`
-- **URL**: ``
+- **Method**: `POST`
+- **URL**: `/users/{userId}/admin`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "role": "ADMIN"
+  }
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "회원 탈퇴가 완료되었습니다.",
+    "data": null
+  }
+  {
+    "status": 201,
+    "message": "회원탈퇴가 완료되었습니다.",
+    "data": {
+      "userId": 1,
+      "deletedAt": "2024-10-14T10:15:30Z"
+    }
+  }
 - **Response fail**
   ```json
+  {
+    "status": 400,
+    "message": "비밀번호를 입력해야 합니다.",
+    "data": null
+  }
+  {
+    "status": 401,
+    "message": "비밀번호가 일치하지 않습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 유저를 찾을 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 403,
+    "message": "이미 탈퇴 처리된 계정입니다.",
+    "data": null
+  }
+  {
+    "status": 403,
+    "message": "해당 계정을 삭제할 권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 410,
+    "message": "이미 탈퇴한 사용자입니다.",
+    "data": null
+  }
+  {
+    "status": 500,
+    "message": "서버 에러가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "data": null
+  }
 
 - **Method**: `DELETE`
-- **URL**: ``
+- **URL**: `/users`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "password": "Paswoord1234"
+  }
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "유저가 성공적으로 삭제되었습니다.",
+    "data": null
+  }
 - **Response fail**
   ```json
+  {
+    "status": 400,
+    "message": "비밀번호를 입력해야 합니다.",
+    "data": null
+  }
+  {
+    "status": 401,
+    "message": "비밀번호가 일치하지 않습니다.",
+    "data": null
+  }
   
 </details>
 
