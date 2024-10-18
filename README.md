@@ -1250,55 +1250,51 @@ Communication<p>
 
 <details>
   <summary><strong>10. 검색 API</strong></summary>
-
-- **Method**: `POST`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
-- **Response fail**
-  ```json
   
-  
-- **Method**: `PATCH`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
- - **Response fail**
-   ```json
-
 - **Method**: `GET`
-- **URL**: ``
+- **URL**: `/searches`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
+- **Request Param**:
+  ```
+  Title : "",
+  Content : "",
+  DueDate : "",
+  CreatedBy : ""
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "카드가 검색되었습니다.",
+    "data" {
+       [
+          {
+             "cardId": 1,
+             "cardTitle": "",
+             "cardDescription": "",
+             "cardDueDate": "",
+             "cardCreatedAt": "",
+             "cardUpdatedAt": ""
+         },
+         {
+           "cardId": 1,
+           "cardTitle": "",
+           "cardDescription": "",
+           "cardDueDate": "",
+           "cardCreatedAt": "",
+           "cardUpdatedAt": ""
+         }
+      ]
+    }
+  }
 - **Response fail**
   ```json
-
-- **Method**: `DELETE`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
-- **Response fail**
-  ```json
+  {
+    "status": 404,
+    "message": "해당 검색어로 보드를 찾을 수 없습니다.",
+    "data": null
+  }
   
 </details>
 
