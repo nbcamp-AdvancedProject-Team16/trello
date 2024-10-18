@@ -57,6 +57,168 @@ Communication<p>
 ## :green_book: API 명세서
 
 <details>
+  <summary><strong>1. 회원가입/로그인 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
+  <summary><strong>2. 멤버 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
+  <summary><strong>3. 워크스페이스 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
   <summary><strong>4. 보드 생성 API</strong></summary>
 
 - **Method**: `POST`
@@ -221,6 +383,276 @@ Communication<p>
     "data": null
   }
 
+</details>
+
+<details>
+  <summary><strong>5. 리스트 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
+  <summary><strong>7. 댓글 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
+  <summary><strong>8. 첨부파일 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
+  <summary><strong>9. 알림 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+</details>
+
+<details>
+  <summary><strong>10. 검색 API</strong></summary>
+
+- **Method**: `POST`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
+  
+- **Method**: `PATCH`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+ - **Response fail**
+   ```json
+
+- **Method**: `GET`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+
+- **Method**: `DELETE`
+- **URL**: ``
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Request Body**:
+  ```json
+- **Response success**
+  ```json
+- **Response fail**
+  ```json
+  
 </details>
 
 
