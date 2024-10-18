@@ -276,55 +276,148 @@ Communication<p>
   <summary><strong>2. 멤버 API</strong></summary>
 
 - **Method**: `POST`
-- **URL**: ``
+- **URL**: `/users/{userId}/admin/workspaces/{workspaceId}/members`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "user_id": 2,
+    "member_role": "WORKSPACE_MEMBER"
+  }
+  {
+    "user_id": 3,
+    "member_role": 
+    "BOARD_MEMBER"
+  }
+  {
+    "user_id": 4,
+    "member_role": 
+    "READ_ONLY"
+  }
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "멤버가 워크스페이스에 추가되었습니다.",
+    "data": {
+      "memberId": 1,
+      "userId": 2,
+      "workspaceId": 1,
+      "memberRole": "WORKSPACE_MEMBER",
+      "createdAt": "2024-10-14T10:15:30Z"
+    }
+  }
+  {
+    "status": 201,
+    "message": "멤버 초대가 완료되었습니다.",
+    "data": {
+      "workspaceId": 123,
+      "memberId": 456,
+      "email": "invitee@example.com",
+      "invitedAt": "2024-10-14T10:15:30Z"
+    }
+  }
 - **Response fail**
   ```json
-  
+  {
+    "status": 400,
+    "message": "지정된 멤버 역할이 유효하지 않습니다. 유효한 역할: WORKSPACE_MEMBER, BOARD_MEMBER, READ_ONLY.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 유저 ID를 찾을 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 워크스페이스 ID를 찾을 수 없습니다.",
+    "data": null
+  }
+    {
+    "status": 403,
+    "message": "권한이 없는 사용자는 멤버를 추가할 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 409,
+    "message": "해당 유저는 이미 워크스페이스에 등록된 멤버입니다.",
+    "data": null
+  }
+  {
+    "status": 500,
+    "message": "서버 에러가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "data": null
+  }
   
 - **Method**: `PATCH`
-- **URL**: ``
+- **URL**: `/users/{userId}/admin/workspaces/{workspaceId}/members/{memberId}/role`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "user_id": 2,
+    "member_role": "WORKSPACE_MEMBER"
+  }
+  {
+    "user_id": 3,
+    "member_role": 
+    "BOARD_MEMBER"
+  }
+  {
+    "user_id": 4,
+    "member_role": 
+    "READ_ONLY"
+  }
 - **Response success**
   ```json
- - **Response fail**
+  {
+    "status": 200,
+    "message": "멤버의 역할이 변경되었습니다.",
+    "data": {
+      "memberId": 1,
+      "userId": 2,
+      "workspaceId": 1,
+      "memberRole": "BOARD_MEMBER",
+      "createdAt": "2024-10-14T10:15:30Z"
+    }
+  }
+- **Response fail**
    ```json
-
-- **Method**: `GET`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
-- **Response fail**
-  ```json
-
-- **Method**: `DELETE`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
-- **Response fail**
-  ```json
-  
-</details>
+   {
+    "status": 400,
+    "message": "지정된 멤버 역할이 유효하지 않습니다. 유효한 역할은 WORKSPACE_MEMBER, BOARD_MEMBER, READ_ONLY입니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 유저 ID를 찾을 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 워크스페이스 ID를 찾을 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 403,
+    "message": "권한이 없는 사용자는 멤버를 추가할 수 없습니다.",
+    "data": null
+  }
+  {
+    "status": 409,
+    "message": "해당 유저는 이미 워크스페이스에 등록된 멤버입니다.",
+    "data": null
+  }
+  {
+    "status": 500,
+    "message": "서버 에러가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "data": null
+  }
 
 <details>
   <summary><strong>3. 워크스페이스 API</strong></summary>
