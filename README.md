@@ -983,53 +983,86 @@ Communication<p>
   <summary><strong>7. 댓글 API</strong></summary>
 
 - **Method**: `POST`
-- **URL**: ``
+- **URL**: `/cards/{cardId}/comments`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "content": ""
+  }
 - **Response success**
   ```json
+  {
+    "status": 201,
+    "message": "댓글이 추가 되었습니다."
+  }
 - **Response fail**
   ```json
-  
+  {
+    "status": 403,
+    "message": "권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 댓글 ID를 찾을 수 없습니다.",
+    "data": null
+  }
   
 - **Method**: `PATCH`
-- **URL**: ``
+- **URL**: `/cards/{cardId}/comments/{commentId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
 - **Request Body**:
   ```json
+  {
+    "content": ""
+  }
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "댓글이 수정되었습니다."
+  }
  - **Response fail**
    ```json
-
-- **Method**: `GET`
-- **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
-- **Request Body**:
-  ```json
-- **Response success**
-  ```json
-- **Response fail**
-  ```json
+   {
+    "status": 403,
+    "message": "권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 댓글 ID를 찾을 수 없습니다.",
+    "data": null
+  }
 
 - **Method**: `DELETE`
-- **URL**: ``
+- **URL**: `/cards/{cardId}/comments/{commentId}`
 - **Request Header**:
   - Authorization: Bearer `<JWT 토큰>`
   - Content-Type: `application/json`
-- **Request Body**:
-  ```json
 - **Response success**
   ```json
+  {
+    "status": 200,
+    "message": "댓글이 삭제되었습니다."
+  }
 - **Response fail**
   ```json
+  {
+    "status": 403,
+    "message": "권한이 없습니다.",
+    "data": null
+  }
+  {
+    "status": 404,
+    "message": "해당 댓글 ID를 찾을 수 없습니다.",
+    "data": null
+  }
   
 </details>
 
