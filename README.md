@@ -1476,6 +1476,7 @@ public interface WorkspaceRepository extends JpaRepository<WorkspaceEntity, Long
 - **빈번한 데이터 충돌 발생 시 비효율적**: 동일한 데이터를 자주 수정하는 경우 충돌이 자주 발생할 수 있음
 
 #### 변경 사항
-✔️ **Card Entity**: 카드 엔티티에 @Version 어노테이션 추가하여 JPA 엔티티 클래스의 버전 관리를 담당하게 적용- 
+✔️ **Card Entity**: 카드 엔티티에 @Version 어노테이션 추가하여 JPA 엔티티 클래스의 버전 관리를 담당하게 적용
+
 ✔️ **Card Service**: 업로드할 때, 동시에 처리 요청이 들어왔을 때 사용자에게 예외처리를 반환
  
