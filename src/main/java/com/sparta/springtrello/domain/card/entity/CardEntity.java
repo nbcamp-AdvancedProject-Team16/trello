@@ -48,6 +48,9 @@ public class CardEntity extends Timestamped {
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<AttachmentEntity> attachments;// 추가된 부분
 
+    @Version
+    private Long version; // 동시성 제어를 위한 @Version 필드 추가
+
     public CardEntity(CardRequest cardRequest,ListEntity list){
         this.title = cardRequest.getTitle();
         this.description = cardRequest.getDescription();
