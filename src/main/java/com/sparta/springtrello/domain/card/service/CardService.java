@@ -18,7 +18,7 @@ import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
-import com.sparta.springtrello.domain.user.enums.UserRole;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,15 +104,19 @@ public class CardService {
 
         validatePermission(member);
 
-        card.updateCard(cardRequest);
+        try {
+            card.updateCard(cardRequest);
 
-        activityLogService.saveLog("카드가 수정되었습니다. 카드 ID: " + card.getId());
+            activityLogService.saveLog("카드가 수정되었습니다. 카드 ID: " + card.getId());
 
-        // 슬랙 알림 전송
-        String message = String.format("%s님이 카드[%s]를 수정했습니다.", user.getEmail(), card.getTitle());
-        notificationService.createNotification(message,  "card");
+            // 슬랙 알림 전송
+            String message = String.format("%s님이 카드[%s]를 수정했습니다.", user.getEmail(), card.getTitle());
+            notificationService.createNotification(message,  "card");
 
-        return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
+            return new CardResponse(card.getTitle(), card.getDescription(), card.getDueDate());
+        } catch (OptimisticLockException e) {
+            throw new CustomException(409, "다른 사용자가 이미 이 카드를 수정했습니다. 다시 시도해주세요.");
+        }
     }
 
     @Transactional
