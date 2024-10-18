@@ -61,9 +61,6 @@ Communication<p>
 
 - **Method**: `POST`
 - **URL**: `/users/singup`
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
 - **Request Body**:
   ```json
   {
@@ -1150,9 +1147,6 @@ Communication<p>
 
 - **Method**: `GET`
 - **URL**: `/notifications`
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
 - **Response success**
   ```json
   {
@@ -1177,9 +1171,6 @@ Communication<p>
   
 - **Method**: `DELETE`
 - **URL**: `/notifications/{notificationId}`
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
 - **Response success**
   ```json
   {
@@ -1197,9 +1188,6 @@ Communication<p>
 
 - **Method**: `GET`
 - **URL**: `/notifications/settings`
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
 - **Response success**
   ```json
   {
@@ -1212,9 +1200,6 @@ Communication<p>
 
 - **Method**: `PATCH`
 - **URL**: `/notifications/settings`
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
 - **Request Body**:
   ```json
   {
@@ -1237,9 +1222,6 @@ Communication<p>
 
 - **Method**: ``
 - **URL**: ``
-- **Request Header**:
-  - Authorization: Bearer `<JWT 토큰>`
-  - Content-Type: `application/json`
 - **Response success**
   ```json
   {
