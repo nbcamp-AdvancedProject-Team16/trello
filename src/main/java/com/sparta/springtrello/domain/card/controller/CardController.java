@@ -6,10 +6,11 @@ import com.sparta.springtrello.domain.card.service.CardService;
 import com.sparta.springtrello.domain.common.response.ApiResponse;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/lists")
@@ -26,11 +27,11 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<CardResponse> getCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long cardId) {
+    public ResponseEntity<ApiResponse<CardResponse>> getCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long cardId) {
 
         CardResponse response = cardService.getCard(authUser, cardId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(new ApiResponse<>(200, "카드가 성공적으로 조회되었습니다.", response));
     }
 
     @PatchMapping("/{listId}/cards/{cardId}")
@@ -47,4 +48,9 @@ public class CardController {
         return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<Set<Object>> getPopularCards() {
+        Set<Object> popularCards = cardService.getPopularCards();
+        return ResponseEntity.ok(popularCards);
+    }
 }
