@@ -45,7 +45,7 @@ public class CardController {
     public ResponseEntity<ApiResponse<Void>> deleteCard(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long listId, @PathVariable Long cardId) {
         cardService.deleteCard(authUser, listId, cardId);
 
-        return ResponseEntity.ok(new ApiResponse<>(200, "보드가 성공적으로 삭제되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, "카드가 성공적으로 삭제되었습니다.", null));
     }
 
     @GetMapping("/popular")
