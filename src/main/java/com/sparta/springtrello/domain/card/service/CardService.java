@@ -18,15 +18,20 @@ import com.sparta.springtrello.domain.member.repository.MemberRepository;
 import com.sparta.springtrello.domain.notification.service.NotificationService;
 import com.sparta.springtrello.domain.user.entity.CustomUserDetails;
 import com.sparta.springtrello.domain.user.entity.UserEntity;
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@Cacheable
 @RequiredArgsConstructor
 public class CardService {
 
@@ -38,9 +43,10 @@ public class CardService {
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
 
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Transactional
     public CardResponse createCard(CustomUserDetails authUser,Long listId, CardRequest cardRequest) {
-
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
         ListEntity list = listRepository.findById(listId).orElseThrow(()-> new CustomException(404, "리스트 ID를 찾을 수 없습니다."));
@@ -64,7 +70,7 @@ public class CardService {
     }
 
     @Transactional
-    public CardResponse getCard(CustomUserDetails authUser,Long cardId) {
+    public CardResponse getCard(CustomUserDetails authUser, Long cardId) {
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
         CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new CustomException(404, "카드가 존재하지 않습니다."));
@@ -76,9 +82,14 @@ public class CardService {
 
         validatePermission(member);
 
-        List<AssigneeEntity> assigneeEntity = assigneeRepository.findByCardId(cardId);
+        // 조회수 증가 및 어뷰징 방지
+        incrementCardViewCount(cardId, user.getId());
 
-       List<CommentEntity> commentEntities = commentRepository.findByCardId(cardId);
+        // 인기 카드 업데이트
+        updatePopularCardRanking(String.valueOf(cardId));
+
+        List<AssigneeEntity> assigneeEntity = assigneeRepository.findByCardId(cardId);
+        List<CommentEntity> commentEntities = commentRepository.findByCardId(cardId);
 
         // 슬랙 알림 전송
         String message = String.format("%s님이 카드[%s]를 조회했습니다.", user.getEmail(), card.getTitle());
@@ -91,13 +102,12 @@ public class CardService {
 
     @Transactional
     public CardResponse updateCard(CustomUserDetails authUser,Long listId, Long cardId, CardRequest cardRequest) {
-
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
         ListEntity list = listRepository.findById(listId).orElseThrow(()-> new CustomException(404, "리스트 ID를 찾을 수 없습니다."));
 
-        CardEntity card = cardRepository.findByListIdAndId(listId,cardId)
-                .orElseThrow(() -> new RuntimeException("Card not found"));
+        CardEntity card = cardRepository.findByListIdAndId(listId, cardId)
+                .orElseThrow(() -> new CustomException(404, "해당 카드를 찾을 수 없습니다."));
 
         MemberEntity member = memberRepository.findByUserIdAndWorkspaceId(user.getId(), list.getBoard().getWorkspace().getId())
                 .orElseThrow(() -> new CustomException(403, "해당 워크스페이스의 멤버가 아닙니다."));
@@ -121,7 +131,6 @@ public class CardService {
 
     @Transactional
     public void deleteCard(CustomUserDetails authUser,Long listId, Long cardId) {
-
         UserEntity user = UserEntity.fromAuthUser(authUser);
 
         ListEntity list = listRepository.findById(listId).orElseThrow(()-> new CustomException(404, "리스트 ID를 찾을 수 없습니다."));
@@ -141,6 +150,48 @@ public class CardService {
         notificationService.createNotification(message,  "card");
 
         cardRepository.delete(card);
+    }
+
+    // 카드 조회수 증가
+    public void incrementCardViewCount(Long cardId, Long userId) {
+        if (cardId == null || userId == null) {
+            throw new CustomException(400, "카드가 없거나 존재하지 않는 유저입니다.");
+        }
+
+        String cardViewKey = "card: " + cardId + ":views";
+        String userViewKey = "user: " + userId + ":cards:" + cardId;
+
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(userViewKey))) {
+            redisTemplate.opsForValue().increment(cardViewKey);
+            redisTemplate.opsForValue().set(userViewKey, "1", 1, TimeUnit.DAYS);
+        }
+    }
+
+    // 인기 카드 랭킹 업데이트
+    public void updatePopularCardRanking(String cardId) {
+        String rankingKey = "card:ranking";
+        redisTemplate.opsForZSet().incrementScore(rankingKey, cardId, 1);
+    }
+
+    // 인기 카드 목록 조회
+    public Set<Object> getPopularCards() {
+        String rankingKey = "card:ranking";
+        return redisTemplate.opsForZSet().range(rankingKey, 0, 9); // 상위 10개 카드 조회
+    }
+
+    // 자정에 조회수 리셋
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetDailyCardViewCounts() {
+        String rankingKey = "card:ranking";
+        Set<String> cardKeys = redisTemplate.keys("card:*:views");
+
+        if (cardKeys != null && !cardKeys.isEmpty()) {
+            for (String key : cardKeys) {
+                redisTemplate.delete(key);
+            }
+        }
+
+        redisTemplate.delete(rankingKey);
     }
 
     private void validatePermission(MemberEntity member) {
