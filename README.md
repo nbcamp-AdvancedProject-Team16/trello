@@ -943,6 +943,20 @@ Spring Boot를 활용해 칸반 보드 방식으로 작업을 관리할 수 있�
     "data": null
   }
 
+- **Method**: `GET`
+- **URL**: `/lists/popular`
+- **Request Header**:
+  - Authorization: Bearer `<JWT 토큰>`
+  - Content-Type: `application/json`
+- **Response success**
+  ```json
+   {
+    "1",
+    "2",
+    "10",
+    "8"
+    }
+
 - **Method**: `DELETE`
 - **URL**: `/lists/{listId}/cards/{cardId}`
 - **Request Header**:
