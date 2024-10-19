@@ -1480,3 +1480,5 @@ public interface WorkspaceRepository extends JpaRepository<WorkspaceEntity, Long
 
 ✔️ **Card Service**: 업로드할 때, 동시에 처리 요청이 들어왔을 때 사용자에게 예외처리를 반환
  
+## 📈 Redis 캐싱을 사용한 카드 조회 시, 조회수 카운팅
+[Redis 사용방법](https://www.notion.so/Redis-Redis-redis-server-exe-1241250b82468064bfeee4d57816e75c)
